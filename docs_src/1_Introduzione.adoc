@@ -1,0 +1,319 @@
+= Introduzione
+
+.Crittografia e realtà
+****
+Nel leggere un testo specialistico di crittografia ci si imbatte in un gergo molto particolare, e per chi si avvicina la prima volta a questo mondo è certamente fonte di difficoltà, come se l'argomento non fosse già abbastanza complicato di suo.
+Questo capitolo è una breve introduzione alla crittografia ed alle sue applicazioni reali, con l'intento di fornire al lettore le basi di conoscenza sufficienti a comprenderne il resto.
+Ci si propone di fare un po’ di chiarezza sull'argomento, vittima spesso di spettacolarizzazioni cinematografiche che poco hanno di reale, e che sono fonte di leggende persistenti a danno della realtà delle cose.
+
+Altra fonte di "`rumore`" nell'informazione è il fatto che l'argomento sta diventando attuale e pressante per le innumerevoli implicazioni legali, e molti hanno capito che si tratta di una fonte di guadagno.
+Ecco spuntare dal nulla una miriade di prodotti, che promettono tutto, ed il contrario di tutto, ma non spiegano quali siano gli effetti collaterali e le controindicazioni, per non parlare dei pericoli insiti nell'uso di una tecnologia poco conosciuta e per nulla compresa.
+
+Quando usare la crittografia, come usarla, e soprattutto perché usarla sono domande che ottengono risposte insoddisfacenti, o nessuna risposta.
+
+Basti pensare che uno dei cliché cinematografici più abusati è quello dell'adolescente che con un congegno costruito con le proprie mani, o un software sviluppato in proprio, o peggio ancora "`a mani nude`", in pochi secondi viola un codice sofisticatissimo e segretissimo, o si intrufola in una rete di computer di qualche Agenzia nota (e spesso maltrattata dagli sceneggiatori), svalutando profondamente una tecnologia che invece può essere fonte di sicurezza.
+La crittografia nel mondo reale è profondamente differente, ed i suoi punti di forza, come le sue vulnerabilità, sono in direzione totalmente inaspettata e impensabile.
+
+Come diceva un famoso scrittore, la realtà spesso supera la fantasia.
+E di molto, aggiungo io.
+****
+
+
+== Qualche definizione
+
+Dovendo parlare di questioni di sicurezza, è necessario definire qualche concetto di base che verrà utilizzato nel seguito, anche perché la tendenza a dare per scontato il significato di alcuni termini di uso comune può essere fuorviante, oltre che impreciso.
+Le caratteristiche che deve possedere una firma digitale utilizzabile nel mondo reale sono:
+
+[horizontal]
+autenticità :: intesa come "`quella è proprio la mia firma`"
+integrità   :: intesa come "`il documento che ho firmato è proprio questo`"
+non ripudio :: inteso come "`è firmato da te, non puoi dire che non è tua la firma`"
+
+Queste sono le caratteristiche implicite di una nostra firma a penna su un qualsiasi documento.
+Andando a buonsenso una firma digitale su un documento egualmente digitale dovrebbe assimilarsi a questa situazione ma, come vedremo, non è proprio così, e le cose non sono per nulla semplici, né dal punto di vista tecnologico, né dal punto di vista legale.
+Ma andiamo con ordine.
+
+
+== Digitale equivale a reale?
+
+Per una serie di malintesi, o per un'eccessiva fiducia nella tecnologia, vista spesso come "`La Soluzione`", di solito si pensa alla posta elettronica, ed in generale al documento in formato digitale, alla stregua di una normale lettera postale o di un fascicolo rilegato.
+Purtroppo, questo non è per niente vero, ed i motivi sono poco evidenti ai non "`addetti ai lavori`".
+
+Parlando di posta elettronica, i protocolli e gli standard con cui viene trattata sono ideati ed implementati per consentire la comunicazione attraverso un canale che per assunto era sicuro e fra alleati.
+Questo era vero quando la Rete era agli inizi e si chiamava Arpanet, l'antenata destinata alla comunicazione fra le università e gli istituti di ricerca.
+Non lo è più da quando i messaggi transitano sull'odierna Internet, che occorre iniziare a pensare come un luogo ostile.
+I punti deboli più evidenti del protocollo possono essere riassunti nei seguenti punti, senza entrare in dettagli troppo tecnici:
+
+* il mittente e il destinatario possono essere falsificati e cambiati senza troppa difficoltà sia in partenza che durante il trasferimento
+* con la stessa facilità, il messaggio può essere letto durante tutto il percorso, senza alterarne in alcun modo il contenuto o l'aspetto
+* non è previsto un meccanismo di verifica dell'integrità del messaggio, che può essere modificato in un momento qualsiasi del trasferimento fra mittente e destinatario, senza lasciare tracce evidenti
+* possono essere fatte copie assolutamente identiche del messaggio senza che si noti differenza alcuna
+
+Tutto questo non sta a significare che la posta elettronica sia inutilizzabile, visto che è regolarmente impiegata come mezzo di comunicazione da buona parte del mondo industrializzato, ma semplicemente che così com'è _non è sicura_.
+
+Gli stessi problemi li abbiamo di fronte ad un qualsiasi altro documento in formato digitale, che sia un testo, un foglio di calcolo o una presentazione: gli strumenti di creazione normalmente utilizzati non prevedono questo livello di sicurezza.
+Un fascicolo di carte è molto difficile da modificare, e chi lo fa deve essere ben attento a non lasciare tracce.
+Viceversa, un qualsiasi documento digitale è semplicissimo da modificare _senza lasciare traccia alcuna_.
+
+Allo stesso modo non è dato sapere se il documento è stato effettivamente scritto, inviato o approvato dal mittente dichiarato nel documento stesso o indicato nel messaggio di posta elettronica che lo trasporta.
+Un documento fisico, cartaceo, può riportare la firma del mittente, che può essere addirittura apposta in presenza di testimoni, o di un notaio, che ne può _certificarne_ l'autenticità anche a distanza di anni.
+Per un documento digitale questo è al momento poco fattibile, per ragioni che vedremo.
+
+Per questi motivi, dal punto di vista legale e commerciale, i documenti in formato elettronico e la posta elettronica, a meno di artifici tecnologici o di procedure particolari, non possono essere equiparati alle controparti del mondo materiale.
+Questo vale anche per i rapporti fra privati, dove la riservatezza sta sempre più diventando un requisito importante.
+
+Con gli strumenti che conosciamo ed utilizziamo quotidianamente, la risposta alla domanda nel titolo non può che essere negativa.
+Occorre aggiungere qualcosa, in attesa che venga proposto uno standard, un sistema, un _qualcosa in più_ per risolvere almeno parzialmente questi problemi.
+
+
+== Crittografia alla portata di tutti
+
+La crittografia può rispondere in parte alle basilari necessità di riservatezza e di autenticità.
+Non è la soluzione definitiva, che probabilmente non esiste e non esisterà mai, ma può almeno portare la posta elettronica ed i documenti digitali al livello minimo di riservatezza che possiede una lettera in busta chiusa.
+
+Il problema è che, fino a qualche tempo fa, la crittografia era costosissima.
+Il suo impiego richiede risorse di calcolo, che significano tempo e denaro.
+Tentando la creazione di messaggi segreti, anche per gioco, possiamo renderci conto del tempo che occorre per cifrare sia pure un breve messaggio.
+
+La conseguenza era che solo le applicazioni militari ne potevano usufruire, perché il costo da sostenere era nulla rispetto al danno derivante dalla possibilità che informazioni preziose cadessero in mano al nemico.
+Inoltre lo studio di nuovi sistemi per cifrare richiedeva elevate competenze in parecchi campi, non solo puramente tecnologici: fino all'inizio del ventesimo secolo i principali esperti di crittografia erano linguisti.
+
+Negli anni a cavallo fra la Prima e la Seconda Guerra Mondiale qualcosa cambiò con la commercializzazione del primo sistema crittografico meccanizzato, che rendeva immensamente più semplice e veloce lo scambio di informazioni in modo sicuro:
+https://it.wikipedia.org/wiki/Enigma_(crittografia)[Enigma^].
+Il costo dell'apparecchio era elevato, non certo alla portata di tutti, ma garantiva un livello di segretezza prima impensabile all'industriale o al commerciante che poteva permettersi la spesa.
+Anche se venduta in pochi esemplari, Enigma in questa versione segnò in qualche modo la fine del monopolio militare sulla cosiddetta _crittografia forte_.
+Purtroppo l'inizio della guerra, oltre alle altre tragedie ben più gravi, provocò una battuta d'arresto nello sviluppo di applicazioni civili della crittografia.
+Nel dopoguerra, la divisione del mondo in due blocchi portò a considerare in modo ancora più attento i codici segreti, al punto da classificarli a tutti gli effetti armamenti, la cui esportazione era ed è tutt'ora considerata un reato gravissimo, esattamente come vendere ordigni nucleari ad altre nazioni.
+
+L'informatizzazione di massa e il computer alla portata di tutti hanno cambiato notevolmente le cose, non solo in questo campo.
+Oggi sono disponibili congegni crittografici terribilmente robusti per pochi Euro e versioni di software in open source altrettanto affidabili.
+
+Il fatto che siano open source non diminuisce la loro efficacia, anzi, secondo un assioma della crittografia, detto
+https://it.wikipedia.org/wiki/Principio_di_Kerckhoffs[principio di Kerckhoffs^],
+il miglior sistema possibile non deve avere segreti nel funzionamento, perché una volta scoperto il segreto il sistema crittografico diventa del tutto inutile per chiunque in un solo colpo.
+Un buon sistema deve la sua forza ad un segreto individuale, differenziato e conosciuto solo dal singolo utente: se viene violato, solo affari e documenti di quell'utente sono in pericolo, tutti gli altri sono al sicuro.
+Immaginandolo come una serratura, se la sua costruzione prevede un componente segreto è sufficiente esaminarne un campione: una volta capito il funzionamento si ha accesso a tutte le abitazioni protette da quel modello.
+Se invece la serratura non ha componenti segreti, colui che voglia introdursi in una abitazione deve entrare in possesso delle chiavi di quell'esemplare, che non funzioneranno su nessun altro.
+
+Traducendo in termini di uso comune in crittografia, il segreto deve risiedere non nella procedura crittografica, ma in qualcosa che sceglie il proprietario dei dati da proteggere e che conosce solo lui.
+Esattamente come le chiavi di casa, che sono in possesso solo del proprietario legittimo, pur usando serrature di uso comune il cui funzionamento è noto.
+
+Proprio per esplicitare questa caratteristica di segreto personale in possesso del solo proprietario, questi dati segreti usati in crittografia vengono chiamati appunto _chiavi_.
+
+Per meglio capire la differenza, il cifrario che Cesare usava per le comunicazioni con i suoi generali prevedeva che ogni lettera dell'alfabeto fosse sostituita con la lettera che la seguiva a tre posizioni di distanza: la "`A`" diventava "`D`", la "`B`" diventava "`E`" e così via.
+Una volta capito il meccanismo, anche se Cesare avesse cambiato il segreto, in questo caso il numero di posizioni di distanza fra le lettere dell'alfabeto originale e le corrispondenti nell'alfabeto del messaggio segreto, era piuttosto facile e veloce trovare la nuova chiave, anche andando a tentativi.
+La cifratura di Cesare è in effetti un sistema crittografico debolissimo.
+
+Di contro, gli Alleati riuscirono a mettere le mani sui piani di costruzione di Enigma prima dell'inizio della guerra, ma non ne ricavarono alcun beneficio.
+Il meccanismo di cifratura era piuttosto sofisticato: la macchina usava tre dischi di codifica, scelti fra cinque, la cui posizione iniziale poteva essere cambiata a piacere, e un pannello a spinotti, che permetteva di scambiare la posizione delle lettere a coppie.
+Pur avendo un esemplare originale di Enigma occorreva sapere quali dischi erano usati, la loro posizione iniziale e la configurazione degli spinotti: senza questi dati, costituenti la chiave, era praticamente impossibile decifrare il messaggio.
+
+Gli Alleati riuscirono a far breccia in Enigma per vari motivi, inizialmente nessuno legato a come era costruito, ma piuttosto perché venne usato male: per esempio, venivano cifrati anche i bollettini meteorologici, trasmessi metodicamente sempre alla stessa ora e dalla stessa stazione.
+Sapendo il probabile contenuto del messaggio si riusciva a risalire alla posizione dei dischi e degli spinotti.
+Solo quando questa possibilità venne meno, si lavorò per trovare un punto debole nel sistema crittografico, scoperto solo grazie all'intervento di una squadra di matematici di prim'ordine e di nientemeno che Alan Turing, il padre della moderna Scienza dell'Informazione.
+Ma nonostante questa scoperta, occorreva tutte le volte scoprire la chiave, la posizione dei dischi e degli spinotti, tanto era robusto il sistema.
+
+La storia di Enigma è da prendere a monito: nessun sistema è inviolabile, o almeno non lo resta a lungo.
+Se poi viene usato male, anche il sistema più sicuro diventa inutile.
+
+
+== Crittografia simmetrica e asimmetrica
+
+Esistono molti sistemi di crittografia ma, per quello che ci interessa in questo momento, li possiamo dividere fondamentalmente in due categorie: simmetrici ed asimmetrici.
+I sistemi simmetrici usano la stessa chiave per cifrare e decifrare, mentre i sistemi asimmetrici usano chiavi differenti, non intercambiabili.
+
+Enigma è un sistema simmetrico, perché la chiave per cifrare e decifrare è la stessa.
+Da questa caratteristica nasce il problema della cosiddetta _distribuzione delle chiavi_, cioè che mittente e destinatario del messaggio devono prima accordarsi sulla chiave segreta, comunicarsela in qualche modo.
+È una falla abbastanza grave, e costituì uno dei punti deboli nell'uso di Enigma.
+I sistemi simmetrici sono come una serratura: la stessa chiave apre e chiude.
+
+Nei sistemi asimmetrici si usano due differenti chiavi, una segreta ed una pubblica, e la chiave segreta _non viene mai divulgata né trasmessa ad alcuno_ ma rimane sempre e solo in possesso del proprietario.
+La cifratura asimmetrica funziona come un particolare tipo di lucchetto, _la chiave pubblica_, la cui costruzione non permetta di risalire alla chiave che lo apre, _la chiave privata_, di cui soltanto io ho un esemplare.
+Di questi lucchetti ne distribuisco a centinaia, aperti, ai miei amici.
+Quando uno di loro deve comunicarmi qualcosa, mette il messaggio in una scatola, la chiude con uno dei miei lucchetti e me la manda.
+Solo io potrò aprire il lucchetto e accedere al contenuto della scatola.
+
+Rimane il problema che chiunque può prendere uno dei miei lucchetti e spedirmi un messaggio a nome di un altro, quindi non posso sapere se il mittente è proprio chi dice di essere.
+Inoltre non sempre la sola cifratura mette al riparo da modifiche al messaggio, per motivi che vedremo meglio.
+
+Anche in questo caso la crittografia asimmetrica viene in aiuto, senza aggiungere altri componenti.
+Il sistema di cifratura ha la particolarità che può essere invertito, ossia si può usare la chiave privata per cifrare e quella pubblica per decifrare.
+Può sembrare inutile cifrare un messaggio che tutti possono decifrare a piacere con la chiave pubblica, ma ricordando che si possono decifrare con la chiave pubblica solo i messaggi che ho cifrato con la mia chiave privata, _che possiedo soltanto io_, automaticamente ho generato un processo di firma verificabile, dato che solo io posso aver cifrato il messaggio in questo modo.
+Ecco risolto anche il problema della autenticità del mittente, e quindi il _non ripudio_.
+
+La firma digitale sarebbe molto scomoda da utilizzare se fosse obbligatorio cifrare tutto il messaggio, dato che per leggerlo sarei comunque costretto a decifrarlo.
+Per questo motivo si usa una scorciatoia che rende il messaggio leggibile a tutti, e solo chi ne ha necessità può verificare l'autenticità della mia firma.
+Il metodo usato coinvolge un concetto chiamato _hash_, in parole povere una sequenza di numeri generata a partire dal messaggio che ha queste caratteristiche uniche:
+
+* non può essere invertita, cioè dall'hash non si può ricavare il messaggio originale
+* non deve essere possibile generare in tempi ragionevoli due messaggi differenti che restituiscano lo stesso hash
+
+Le funzioni di hash sono molto veloci, e con documenti di grandi dimensioni sono molto più rapide di una cifratura, per cui hanno tutte le caratteristiche che servono per una firma digitale.
+Una semplice funzione di hash può essere la somma di tutti i caratteri del messaggio in codice ASCII: da questo numero che risulta è impossibile risalire al messaggio, e la grandezza dell'hash è limitata.
+Per comodità e sicurezza, le funzioni realmente utilizzate restituiscono un numero di lunghezza fissa, piuttosto grande: ad esempio SHA1 usa numeri da 160 bit mentre MD5 ne usa da 128 bit.
+
+La procedura è la seguente: prendo il documento o il messaggio che voglio firmare, ne calcolo l'hash con una funzione nota, e applico una cifratura al solo hash con la mia chiave privata.
+Poi spedisco il documento e l'hash cifrato, che rappresenta la mia firma.
+Posso spedire le due parti anche separatamente, non ha importanza.
+Chi riceve il documento lo può leggere senza problemi, dato non è crittografato, e se vuole verificare che io sia il mittente effettivo, calcola l'hash del documento allo stesso modo in cui l'ho calcolato io, poi decifra la firma con la mia chiave pubblica, e ottiene l'hash calcolato da me: se i due hash sono identici il documento è senza dubbio inviato da me.
+
+Inoltre, dato che l'hash è strettamente collegato al contenuto del messaggio firmato, una qualsiasi modifica viene immediatamente segnalata dalla non corrispondenza dell'hash originale e quello del messaggio ricevuto: risolto anche il problema dell'integrità del messaggio.
+
+
+[[sez_personaggi]]
+== Eve la spiona, Trudy l'impicciona, Mallory il guastafeste
+
+Permettetemi una breve digressione di carattere semiserio.
+Quando di parla di crittografia e di comunicazione sicura, rimane sempre difficile spiegare come interagiscono le persone coinvolte, per cui si fa riferimento a dei nomi per identificare anche mnemonicamente i personaggi.
+I più noti sono Alice e Bob, con Alice che vuole comunicare con Bob.
+Eve rappresenta qualcuno che può spiare la comunicazione, ma non modificarla, la spiona appunto, mentre Trudy è quella che può alterare i messaggi in transito, oltre a spiarli.
+Mallory è invece in grado di portare attacchi attivi, quindi non deve attendere che Alice mandi un messaggio a Bob, ma ne crea di nuovi, riutilizza quelli vecchi, altera i dati sui server, operando insomma come _man in the middle_.
+Il livello di sofisticazione degli attacchi è crescente, e la corrispondente contromisura di difesa diventa più complessa, andando da Eve a Trudy, a Mallory.
+
+Immaginiamo allora il malefico trio che complotta per ingannarmi, in presenza di una cifratura asimmetrica e di firma digitale:
+
+* Eve intercetta un messaggio privato che qualcuno mi ha spedito cifrato con la mia chiave pubblica.
+Non può decifrarlo con la stessa chiave, perché non funziona, occorre quella privata.
+Trudy potrebbe provare a modificarlo, ma alla decifrazione mi verrebbe notificata la incongruenza.
+Può solo impedirmi di leggerlo, ma otterrebbe soltanto di insospettirmi.
+* Trudy potrebbe cambiare totalmente il messaggio, mantenendo la firma.
+Al momento della verifica, l'hash del messaggio falso sarebbe sicuramente differente da quello presente nella firma, e verrei immediatamente avvertito che la firma non corrisponde al messaggio.
+* Mallory può sostituirlo con un altro messaggio, sempre cifrato con la mia chiave pubblica, spacciandosi per uno dei miei amici.
+Se però questi firma i propri messaggi con la sua chiave privata, oltre a cifrarli con la mia chiave pubblica, cosa perfettamente possibile, io posso controllare che il messaggio sia effettivamente suo verificandone la firma digitale.
+
+Si può aumentare in modo sostanziale la sicurezza delle nostre comunicazioni, oltre a mettere un serio ostacolo a chi volesse spiare e modificare la nostra posta elettronica, come le simpatiche Eve e Trudy.
+
+Una possibilità per Mallory, dei tre il più esperto e pericoloso, potrebbe essere quella di portare un attacco molto sofisticato, "`inquinando`" la mia chiave pubblica, sostituendola con una generata da lui, ma che sembri appartenere a me.
+Chi voglia spedirmi un messaggio privato, prenderebbe la chiave contraffatta, cifrerebbe il messaggio per me, che verrebbe intercettato da Mallory, decifrato con la sua chiave privata, letto, cifrato di nuovo con la mia chiave pubblica vera e rispeditomi.
+In questo caso non avrei nessun indizio che il messaggio è stato letto strada facendo, ma come potete intuire per Mallory sarebbe un lavoraccio.
+Dovrebbe compromettere almeno un server di posta elettronica, e sperare che nessuno si accorga che ci sono in giro chiavi contraffatte che non mi appartengono.
+Come vedremo nel seguito, il lavoro diventa improbo, se non impossibile, se chi usa le chiavi le controlla attentamente prima di impiegarle.
+
+
+== Decifrare un codice
+
+Vediamo molto rapidamente i metodi usati per decifrare un codice senza avere la chiave segreta.
+Questo ramo della crittografia, imparentato molto strettamente con la statistica e l'alta matematica, viene chiamato _crittoanalisi_.
+
+Per decifrare il codice di Cesare occorrono al massimo 26 tentativi, considerando anche le lettere "`j`", "`k`", "`w`", "`x`" e "`y`".
+Questo metodo di decifrazione viene chiamato _brute force_, con la pura forza: si tentano tutte le chiavi fino a scoprire quella che trasforma il messaggio in codice in un testo di senso compiuto.
+È un sistema molto valido quando le possibili chiavi sono relativamente poche.
+Con il cifrario di Cesare la chiavi sono solo 26, quindi è il metodo più economico.
+
+Se invece si usa un alfabeto totalmente casuale, in cui ogni lettera è sostituita da un'altra a caso, il numero di chiavi diventa molto più alto, pari al fattoriale di 26, circa 400 milioni di miliardi di miliardi.
+Questo sistema di cifratura viene chiamato _a sostituzione monoalfabetica_, per il fatto che l'alfabeto viene sostituito da un altro, unico per tutta la lunghezza del messaggio.
+
+Provando mille chiavi al secondo occorrerebbero in media 6 miliardi di miliardi di anni per trovare quella giusta.
+Detto così sembra un codice inviolabile, ma possiede un punto debole notevole: ogni lettera dell'alfabeto è sostituita sempre dalla stessa, per cui analizzando la frequenza delle lettere usate diventa molto più facile scoprire quale lettera sostituisce quella nel messaggio in chiaro.
+In tutte le lingue ogni lettera dell'alfabeto viene usata più o meno spesso, per esempio in italiano le lettere "`a`", "`e`", "`i`" sono usate molto più spesso di altre, mentre la lettera "`q`" è molto poco usata.
+Inoltre ci sono alcune regole per cui ad esempio la lettera "`h`" compare dentro una parola solo se è preceduta dalle lettere "`c`" o "`g`".
+Questo sistema viene chiamato _analisi delle frequenze_, e permette di decifrare un codice di questo tipo in brevissimo tempo, dell'ordine dei minuti.
+
+I moderni codici di cifratura sono enormemente più complessi, e richiedono calcoli matematici sofisticati.
+Ma non sono del tutto inviolabili: ogni codice ha il suo punto debole, che non è detto sia tale da rendere possibile la decifrazione, ma può permettere di confondere un messaggio al punto tale da renderlo illeggibile.
+Questo problema affligge i codici detti _block cypher_, che per cifrare un messaggio lo dividono in blocchi di lunghezza predefinita.
+In questo caso diventa possibile scambiare o manipolare i singoli blocchi in modo tale da rendere il messaggio privo di senso una volta decifrato.
+
+Altro sistema di attacco è quello detto del _chosen cleartext_, in cui si assume che il testo da decifrare contenga una parola nota, e si tentano varie chiavi di cifratura fino ad ottenere una sequenza di caratteri identica ad una presente nel messaggio da decifrare: in questo modo si scopre la chiave segreta e si può decifrare l'intero messaggio.
+Questo è il modo in cui gli Alleati, cercando parole note all'interno dei bollettini meteo tedeschi, cifrati con Enigma, decifravano i messaggi.
+Questa debolezza affligge molti sistemi di cifratura simmetrica, anche se i moderni algoritmi sono immuni da questo problema.
+
+Oggi molti dei sistemi utilizzati non soffrono di questi problemi, e nel progettare algoritmi di cifratura si pone molta attenzione ad evitare queste vulnerabilità.
+La vita del decifratore si è fatta molto difficile: i codici segreti non sono più quelli di una volta...
+
+
+== Ma quanto è sicura questa crittografia?
+
+La risposta non è semplice, contrariamente a quanto si crede.
+Gli elementi che rendono sicuro un modello di firma digitale e di crittografia non sono solo algoritmi e matematica, ma una parte sostanziale la fa il software e l'immancabile fattore umano.
+
+Posso avere l'algoritmo di cifratura matematicamente inviolabile, ma se la persona che lo usa non capisce ad esempio che la chiave privata di un metodo asimmetrico è _più importante_ delle chiavi di casa, la bontà dell'algoritmo è del tutto inutile.
+
+Dal punto di vista tecnologico e matematico, i moderni algoritmi di crittografia si basano tutti sulla impossibilità per chiunque di avere le risorse di calcolo necessarie a decifrare un solo messaggio.
+Uno degli algoritmi si basa sulla difficoltà della scomposizione in fattori primi, applicata a numeri molto grandi, tipicamente centinaia di cifre decimali: la chiave privata è costituita da due numeri primi differenti molto grandi, mentre la chiave pubblica è il prodotto di questi due numeri, un numero ancora più grande.
+Tutta la robustezza del sistema si basa sul fatto che il tempo necessario per ricavare i due numeri primi dalla chiave pubblica, pur avendo a disposizione tutti i computer del pianeta, è di migliaia di volte l'età dell'universo.
+E questo _per una sola chiave_.
+
+Unica possibilità per chiunque volesse violare un messaggio cifrato con questo algoritmo sarebbero i tanto temuti _computer quantici_, per cui esistono già algoritmi teorici in grado di trovare in pochissimo tempo la scomposizione in fattori dei numeri di seicento e più cifre usati in alcuni sistemi crittografici.
+Per ora, a parte applicazioni dimostrative, simili computer sono ancora lontani, e comunque esistono già alcuni algoritmi di cifratura resistenti anche all'attacco dei computer quantici, come ad esempio il metodo di firma di
+https://en.wikipedia.org/wiki/Lamport_signature[Lamport^].
+
+Per la firma digitale la robustezza si basa anche sulla relativa difficoltà di individuare due differenti testi che restituiscano lo stesso hash e che abbiano un senso compiuto.
+È certamente possibile trovare, con un bel po`' di pazienza e di potenza di calcolo, due sequenze di caratteri in grado di generare lo stesso hash, ma la difficoltà vera è far sì che i messaggi abbiano senso compiuto e il contenuto voluto.
+Per cui, nonostante le recenti notizie allarmistiche di "`rottura`" di alcuni algoritmi di hash, la firma digitale può essere ancora considerata relativamente sicura.
+
+
+== Il fattore umano
+
+Al di là di queste considerazioni più o meno filosofiche, la sicurezza può essere facilmente compromessa in modi molto più semplici.
+Per poter funzionare, tutti i software crittografici hanno bisogno di memorizzare da qualche parte i dati necessari, come ad esempio la chiave privata.
+Per accedervi viene richiesta una password, per evitare che qualcuno, dal nostro computer, possa spedire messaggi spacciandosi _a tutti gli effetti_ per noi.
+Uno dei punti deboli è proprio questa password.
+Se qualcuno riesce a mettere le mani sui file dove il nostro programma di crittografia memorizza i dati, ha la possibilità di sfruttare una scorciatoia notevole: invece di cercare di rompere la nostra chiave privata, impresa che come abbiamo visto è al momento impossibile per chiunque, si può concentrare sulla password che abbiamo scelto per proteggerla.
+Tanto per rendere l'idea, se scegliamo una password di sei caratteri alfabetici a caso ed il tizio ha a disposizione un normale PC, potrebbe trovare la password in meno di quattro giorni, con tanti saluti alla nostra identità e riservatezza digitali.
+Oppure il sistema più semplice potrebbe essere di inserire un _keylogger_ nel nostro computer e conoscere la password in pochi minuti, se il nostro sistema di crittografia non viene usato correttamente, e solo su computer _sicuri_.
+Ma fermiamoci qui, dato che questo porta la discussione fuori dal tema.
+
+I sistemi di firma basati su _smartcard_ non soffrono dello stesso problema, ma ne hanno altri: il punto di forza è che la chiave privata non esce mai dalla smartcard, e che quello che transita è l'hash, che viene inviato alla smartcard e ritorna indietro cifrato con la chiave privata.
+Se però il computer fosse compromesso da qualcuno che al momento della firma sostituisca senza troppe difficoltà l'hash del mio documento con l'hash del suo, _firmerei il suo documento_ invece del mio, senza accorgermene.
+
+In definitiva, il problema comune a tutti i sistemi di firma è che _non sappiamo con certezza cosa stiamo firmando_.
+Ma stiamo veramente facendo le pulci, come si suol dire...
+
+Esiste una smartcard progettata per funzionare secondo le specifiche di OpenPGP, standard su cui si basa GnuPG.
+Maggiori dettagli si trovano sul sito del produttore:
+https://g10code.de[www.g10code.de^].
+L'uso di questa smartcard può aumentare il livello di sicurezza del nostro sistema di firma e crittografia, ma si può rendere comunque difficile la vita ad un eventuale Mallory con alcuni semplici accorgimenti che vedremo nel seguito, anche senza usare particolari dispositivi.
+
+
+== I modelli di certificazione
+
+La firma digitale è un modo per attestare l'origine di un messaggio o un documento in formato elettronico, in un certo senso è anche una attestazione della nostra identità.
+Quindi il problema successivo è: chi certifica che quella chiave pubblica è proprio la mia?
+E che io sono proprio chi dico di essere?
+
+Non è un problema banale, perché se non è chiaro come viene associata la chiave pubblica alla mia persona, non è possibile fare affidamento su tutto il sistema.
+Questo è il vero punto debole di tutti i sistemi di firma digitale, anche perché è il momento in cui il fattore umano pesa in modo determinante.
+
+Si arriva quindi al concetto di _modello di certificazione_, cioè il metodo con cui viene verificata l'identità del proprietario e certificata, appunto, l'associazione con la sua chiave pubblica.
+L'organizzazione del sistema di certificazione viene spesso indicato con l'acronimo PKI (_Public Key Infrastructure_), che si fa carico sia della distribuzione delle chiavi pubbliche, che di fornire la prova di appartenenza delle chiavi stesse.
+Al momento ne esistono di due tipi, usati e conosciuti:
+
+* Il modello ad Autorità di Certificazione (_Certification Authority_), in cui una organizzazione ha il compito di rilasciare sistemi di firma accertando l'identità delle persone e garantendo nei confronti degli altri.
+Per verificare la firma digitale fatta in questo modo devo riferirmi all'Autorità che ha rilasciato la firma e garantisce per il firmatario, certificando appunto l'identità e il possesso.
+* Il modello a Rete della Fiducia (_Web Of Trust_), un po`' più complesso.
+L'idea di base si appoggia sul concetto dei _sei gradi di separazione_ ed alla _Teoria del Mondo Piccolo_.
+In sostanza, ipotizzando di costruire una catena di amici degli amici degli amici, sembra che sia necessaria una catena di sole _sei_ persone per arrivare a qualsiasi altro essere umano attualmente vivente sulla Terra.
+Questo concetto viene sfruttato dal modello a Rete di Fiducia in questo modo: se mi giunge un messaggio firmato da qualcuno che non conosco, potrei però conoscere un suo amico di cui mi fido.
+Sulla base di questa idea, ognuno può convalidare l'associazione fra una chiave pubblica e la persona che la detiene quando la conosca di persona o quando l'abbia incontrata almeno una volta in una occasione particolare (un _Key Signing Party_).
+Di conseguenza, chi non conosca di persona colui che ha mandato il messaggio, potrebbe però conoscere qualcuno che lo ha incontrato, e quindi fidarsi di riflesso.
+
+La principale differenza è che nel primo caso una sola entità certifica identità e associazione fra chiave e possessore, mentre nel secondo questa certificazione è distribuita fra i partecipanti all'infrastruttura, e nessuno ha a priori più autorità di altri.
+
+Come è normale, ci si domanda se i due modelli siano equivalenti, ed in quali casi.
+Come è facile immaginare, le discussioni in merito sono tante e piuttosto accese.
+Tanto per dare una idea, la legge italiana equipara un documento elettronico firmato digitalmente con il modello ad Autorità di Certificazione ad un contratto scritto e firmato, mentre non assegna a priori alcun valore alle firme digitali create con il modello della Rete di Fiducia, che comunque non possono essere rifiutate a priori in sede di giudizio, ma a discrezione del giudice possono essere ritenute attendibili.
+Comunque in nessun caso (e mi sento di dire, in tutta franchezza, per fortuna) la firma digitale può avere il valore di un documento autenticato di fronte ad un notaio, sempre per la legge italiana.
+Maggiori dettagli li possiamo trovare sul sito
+https://www.interlex.it[Interlex^],
+che si occupa di tematiche legali in relazione alle tecnologie dell'informazione.
+
+Non che il modello della Autorità di Certificazione sia invulnerabile.
+Dal punto di vista puramente concettuale, è molto più semplice ingannare una entità singola che ingannarne molte indipendenti, per cui, andando a buon senso, il meccanismo della rete della fiducia è più difficile da indurre in errore, dato che l'identità di una persona, come vedremo, viene controllata più volte, da persone diverse, in occasioni differenti.
+
+Inoltre c'è una vulnerabilità non trascurabile nel metodo di rilascio dei certificati di firma.
+Basta presentarsi allo sportello di una delle organizzazioni autorizzate per avere un certificato con smartcard, presentando un documento di identità.
+Se si pensa che il numero di documenti contraffatti in circolazione è piuttosto consistente, e che molti di essi sono indistinguibili da un documento valido, se non analizzandoli con tecniche piuttosto sofisticate, è facile capire come un impiegato di sportello possa essere ingannato da un siffatto documento, anche qui con tanti saluti alla "`certificazione`".
+Se poi pensiamo che dal lato dell'Autorità, in un unico punto, sono memorizzati tutti i dati di associazione fra certificati di firma e identità, mentre nel modello a _Web of Trust_ i dati sono distribuiti, il cerchio si chiude: chi volesse alterare l'associazione fra una chiave pubblica ed una identità reale avrebbe vita infinitamente più facile con un solo bersaglio da attaccare, l'Autorità, mentre con la Rete della Fiducia dovrebbe alterare un numero imprecisato di archivi, nei computer di tutti quelli in cui è memorizzata la chiave pubblica da alterare.
+Il motivo sarà evidente nel seguito.
+
+Tralascio del tutto considerazioni sul trattamento dei dati personali di identificazione in modo centralizzato da parte di un unico organismo...
+
+
+== Conclusioni
+
+Termino qui questa parte introduttiva e teorica.
+Spero sia stata sufficiente a spiegare i concetti di base che verranno poi richiamati nel seguito.
+Alcuni concetti sono stati volutamente soltanto introdotti, dato che verranno ampiamente trattati nei capitoli seguenti.
+
+Se siamo interessati ai dettagli sul funzionamento della crittografia moderna, agli aspetti matematici, ed alla crittoanalisi, in Rete il materiale è abbondante, partendo dal livello introduttivo fino alla trattazione matematica completa.

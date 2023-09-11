@@ -1,0 +1,14 @@
+[preface]
+= Presentazione
+
+In questi anni la richiesta di riservatezza, contemporaneamente alla crescita esplosiva di attività professionali in Rete, ha portato alla luce alcuni dei limiti del "`sistema Internet`" e delle applicazioni normalmente utilizzate nel lavoro quotidiano.
+
+Semplici concetti come identità del mittente, riservatezza delle comunicazioni, certezza della fonte, che nei consueti canali della realtà fisica sono dati per scontati, nel mondo virtuale si scontrano con difficoltà spesso insormontabili.
+Nel tentativo di rispondere almeno parzialmente a questi inconvenienti, sono stati introdotti strumenti noti come "`firma digitale`" e "`crittografia forte`", che permettono di raggiungere un buon livello di affidabilità e sicurezza.
+
+Non sempre l'uso è reso semplice ed alla portata di tutti, e quello che spesso manca è una indicazione sulle possibili difficoltà e sui limiti di questi strumenti, pur potenti.
+Questo testo è un tentativo di sopperire a queste mancanze, portando progressivamente il lettore dalle basi teoriche della crittografia forte all'installazione ed all'uso di strumenti open source, disponibili per tutti i sistemi operativi più usati.
+
+Attenzione particolare è riservata anche agli aspetti di protezione di questi strumenti, e sono forniti esempi di quelle che sono le debolezze introdotte dall'inevitabile _fattore umano_.
+
+Il testo è scritto pensando sia agli utenti Windows che agli utenti Linux e, quando presenti, sono discusse le differenze fra i due sistemi.

@@ -1,0 +1,459 @@
+= Uso della firma
+
+.Ho le chiavi... Firmo?
+****
+L'uso della firma digitale nel mondo reale: firmare messaggi e documenti, verificarne le firme.
+****
+
+
+== Vari tipi di firma
+
+Nella parte teorica abbiamo visto che una firma digitale è un hash, cifrato con la chiave privata, quindi una sequenza di pochi byte.
+Se il documento digitale che andiamo a firmare è un semplice file di testo puro, è possibile aggiungere la firma al messaggio stesso, in coda.
+Il problema sorge ad esempio con file di applicazioni che usano un loro formato specifico per memorizzare i documenti, come OpenOffice Writer™ o Microsoft Word™, il cui formato di salvataggio dei file non consente modifiche arbitrarie al file stesso, anche solo per inserire i pochi byte di una firma digitale.
+
+Nasce quindi il concetto di _detached signature_, firma separata, che altri non è che un file di pochi byte che contiene la sola firma digitale.
+Questo file è strettamente associato al documento firmato, nel senso che un differente documento non possiederà la stessa firma.
+
+Questo sistema permette di aggirare appunto situazioni, molto frequenti, in cui il documento digitale da firmare non prevede spazio e struttura interna per i sia pur pochi byte della firma digitale.
+Inoltre c'è il problema non indifferente che l'azione di firmare il documento modifica il documento stesso, per cui occorre identificare quale sia la firma e quale la parte firmata.
+Vediamo i due casi, la firma inglobata nel messaggio stesso, e la firma _detached_, applicata ad esempio a file generici.
+
+
+== La firma dentro il messaggio
+
+Nel caso di un testo semplice, come può essere una e-mail, lo standard OpenPGP prevede tutto quello che serve, racchiudendo il testo del messaggio e la firma con intestazioni distinte.
+Potete verificarlo facilmente creando un messaggio di poche parole come questo:
+
+-------------------------------------------
+Messaggio di prova.
+Questo messaggio viene firmato con gpg
+usando una firma internamente al messaggio.
+Ciao
+Pinco
+-------------------------------------------
+
+salvandolo in un file dal nome `messaggio.txt`.
+
+Per firmare il messaggio, mantenendolo leggibile, si usa questo comando:
+
+[role=shell,subs="specialchars,quotes"]
+..................................................
+[pinco@pclinux ~]$ *gpg --clearsign messaggio.txt*
+
+You need a passphrase to unlock the secret key for
+user: "Pinco (uno qualsiasi) <pinco@mail>"
+1024-bit DSA key, ID E4F4B420, created 2007-03-21
+
+Inserisci la passphrase:
+..................................................
+
+Inserendo la password che sblocca la firma si ottiene un file in più dal nome `messaggio.txt.asc` che ha questo aspetto:
+
+
+-----------------------------------------------------------------
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Messaggio di prova.
+Questo messaggio viene firmato con gpg
+usando una firma internamente al messaggio.
+Ciao
+Pinco
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQFGEOqic3KmH+T0tCARAl5JAJ9vYc2juhsgskIgJcQtXyTp1Zhl/wCfWlal
+vy5wqAnDpD//Aivr4cAarjA=
+=9Hi+
+-----END PGP SIGNATURE-----
+-----------------------------------------------------------------
+
+un tipo di messaggio che può capitare di vedere in giro per la Rete, per esempio nelle mailing list o sui newsgroup.
+
+I campi "`Version:`" e "`Comment:`" possono cambiare, o essere assenti del tutto, dato che non rientrano fra i dati necessari.
+Chi riceve questo messaggio può verificarlo come segue:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[pinco@pclinux ~]$ *gpg --verify messaggio.txt.asc*
+gpg: Signature made lun 02 apr 2007 13:36:02 CEST using DSA key ID E4F4B420
+gpg: Good signature from "Pinco (uno qualsiasi) <pinco@mail>"
+...........................................................................
+
+Facciamo la parte di Trudy (cfr. <<sez_personaggi>>), e modifichiamo in una qualsiasi parte il messaggio.
+Dopo aver copiato il file `messaggio.txt.asc` in un altro file a piacere, per esempio `falso.txt.asc`, cambiamo all'interno la parola _gpg_ con _GPG_ nella seconda riga.
+Il risultato è questo:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[pinco@pclinux ~]$ *gpg --verify falso.txt.asc*
+gpg: Signature made lun 02 apr 2007 13:36:02 CEST using DSA key ID E4F4B420
+gpg: BAD signature from "Pinco (uno qualsiasi) <pinco@mail>"
+...........................................................................
+
+Possiamo provare tutte le modifiche che ci vengono in mente, ma non c'è verso di avere un messaggio di firma valida, che si ottiene solo col messaggio originale.
+Se andiamo a toccare la parte della firma, va anche peggio:
+
+[role=shell]
+...............................................
+gpg: CRC error; 7C3687 - F478BE
+gpg: no signature found
+gpg: non è stato possibile verificare la firma.
+...............................................
+
+Per non parlare di sostituire la firma originale con la firma di un altro messaggio a caso:
+
+[role=shell]
+...........................................................................
+gpg: Signature made lun 02 apr 2007 13:46:57 CEST using DSA key ID 5F0AC7D3
+gpg: Impossibile controllare la firma: chiave pubblica non trovata
+...........................................................................
+
+Notare che l'ID della firma non corrisponde, e non abbiamo la chiave pubblica relativa a quell'ID, indizio che non conosciamo chi ha generato quella firma.
+Se fosse qualcuno che conosciamo, e di cui abbiamo la chiave pubblica, il risultato sarebbe:
+
+[role=shell]
+...........................................................................
+gpg: Signature made lun 02 apr 2007 13:46:57 CEST using DSA key ID 5F0AC7D3
+gpg: BAD signature from "Mario Pascucci <mpascucci@gmail.com>"
+...........................................................................
+
+con il risultato di avere un messaggio che dice di provenire da Pinco, firmato da Mario, cosa già strana, per di più con una firma non valida.
+Insomma, molto poco credibile.
+
+Caio si può anche avvalere di WinPT, e scrivere il messaggio come di consueto con il suo programma di posta preferito, ad esempio Outlook Express (<<fig_Sign1>>).
+
+[IMPORTANT]
+.Formato dei messaggi di posta
+===========================================
+È necessario che il messaggio sia scritto in formato testo semplice, quindi niente RTF né HTML.
+Potrebbero funzionare, ma le impostazioni del tipo di carattere, del colore, dell'impaginazione in questi formati contengono dei caratteri nascosti che concorrono a generare l'hash, che poi diventerà la firma.
+Chi li riceve potrebbe avere un programma diverso, o semplicemente in versione differente e non è assolutamente detto che funzioni allo stesso modo.
+Solo testo semplice e niente altro.
+Ci interessa il contenuto del messaggio, non gli abbellimenti.
+
+C'è una ragione ulteriore, molto più forte: recentemente
+https://www.schneier.com/blog/archives/2005/02/sha1_broken.html[si è dimostrato^]
+che si può generare una sequenza di dati che abbia un determinato hash.
+Ricordando come funziona la firma digitale, il riuscire a generare un altro messaggio con identico hash significa che si può cambiare il contenuto del messaggio lasciando valida la firma.
+
+Detto in questo modo sembra un disastro, ma, indagando meglio, si scopre che le sequenze necessarie sono costituite con dati binari che nulla hanno di sensato, non essendo neanche rappresentabili come caratteri alfabetici; quindi, modificare un messaggio in questo modo lo renderebbe molto probabilmente illeggibile, o al più con l'apparenza di essere rovinato, mostrando appunto una lunga sequenza di caratteri e simboli apparentemente casuali.
+Se però il messaggio è in un formato che permetta di nascondere "`sotto`" il testo qualsiasi cosa, come succede con HTML, RTF, DOC, PDF, PS (insomma con praticamente tutti i formati diversi dal testo semplice), un malintenzionato potrebbe intercettare un nostro messaggio, modificarne a piacere il contenuto visibile, ed aggiungere i dati nascosti per far combaciare l'hash con quello del messaggio originale.
+Chiunque riceva il messaggio non solo non si accorgerebbe di nulla, ma troverebbe la firma digitale valida, e non avrebbe alcun motivo di dubitare dell'autenticità del messaggio.
+A titolo di curiosità, è possibile reperire su un
+// DEAK LINK (page not archived at WayBack Machine)
+http://www.cits.rub.de/MD5Collisions/[sito web^, title="pagina inesistente"]
+(in inglese) due documenti di esempio in formato PostScript, con contenuto assolutamente differente ed hash MD5 identico.
+Esaminando attentamente i file si nota una sequenza di dati binari all'inizio che non appare quando si stampano o si visualizzano.
+È un fenomeno noto chiamato _collisione degli hash_, e il meccanismo di firma digitale ne tiene conto.
+
+Proprio per evitare l'uso di trucchi di questo tipo, trattandosi di messaggi molto importanti, tanto da richiedere una firma digitale di convalida, usiamo e pretendiamo che si usi il testo semplice.
+Una protezione non aggirabile verrà poi quando, oltre a firmare un messaggio, lo cifreremo per renderlo illeggibile da chiunque tranne il destinatario: in questo caso, prima di pensare a truccare la firma, occorre risolvere il problema della decifrazione, ben più complesso.
+
+In ogni caso lo sfruttamento di questo tipo di debolezze negli hash non è proprio banale, ed a oggi la quantità di calcoli necessaria per "`aggiustare`" un hash è astronomica e certamente non alla portata di chiunque: il numero di tentativi per ricavare un hash SHA1 "`addomesticato`" è dell'ordine di 2 elevato 69 operazioni: 590.295.810.358.705.651.712 è il numero corrispondente, per chi vuole arrischiarsi a leggerlo.
+Inoltre, fatto non trascurabile, quanto detto vale solo per gli algoritmi di hash SHA1 e MD5: se andiamo ad usare un algoritmo come SHA256 o peggio SHA384, entrambi supportati da GnuPG, le cose si fanno infinitamente più difficili per un eventuale Mallory in vena di scherzi.
+===========================================
+
+[[fig_Sign1]]
+.Messaggio in Outlook Express
+image::wpt-sign-01.png[Messaggio in Outlook Express]
+
+
+Appena completato il messaggio, Caio richiama il menù di WinPT nel solito modo, seleziona menu:Current Window[Sign].
+Viene chiesta la password (<<fig_Sign2>>) e dopo pochi secondi il messaggio viene trasformato in modo simile a quanto visto nel funzionamento con il prompt dei comandi (<<fig_Sign3>>).
+
+[[fig_Sign2]]
+.Richiesta password
+image::wpt-sign-02.png[Richiesta password]
+
+
+[[fig_Sign3]]
+.Messaggio firmato
+image::wpt-sign-03.png[Messaggio firmato]
+
+
+
+[NOTE]
+.WinPT e la clipboard
+===========================================
+Può succedere che per qualche motivo, connesso strettamente a come è realizzata l'applicazione che contiene il testo da firmare, WinPT lamenti che non trova nessun testo nella finestra indicata.
+Non è un problema, dato che può operare sul testo contenuto nella clipboard: basta selezionare il testo su cui operare, copiarlo nella clipboard con la combinaizone di tasti kbd:[Ctrl+C], ed operare prendendo dal menù di WinPT la voce menu:Clipboard[] invece di menu:Current window[].
+Per ottenere il risultato dell'operazione basta incollarlo dalla clipboard con la combinazione kbd:[Ctrl+V] o esaminare il contenuto della clipboard stessa selezionando dal menù di WinPT menu:Clipboard[Edit].
+Più avanti ci saranno degli esempi, ma basti sapere che WinPT opera indifferentemente nei due modi.
+===========================================
+
+Passiamo dalla parte di Pinco che riceve il messaggio di Caio e vuole verificare la sua firma.
+
+Se ha un programma di posta che lo prevede, verifica direttamente la validità della firma, altrimenti può salvare il messaggio su un file, ad esempio `msg-da-caio.txt` e verificarlo in questo modo:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[pinco@pclinux ~]$ *gpg --verify msg-da-caio.txt*
+gpg: Signature made lun 02 apr 2007 12:40:14 CEST using DSA key ID 3D739F0D
+gpg: Good signature from "Caio <caio@server>"
+...........................................................................
+
+ed avere la certezza che il messaggio viene proprio da Caio, perché ha la chiave pubblica di Caio controllata e firmata.
+Se non avesse la chiave pubblica di Caio otterrebbe invece un messaggio come questo:
+
+[role=shell]
+...........................................................................
+gpg: Signature made lun 02 apr 2007 12:40:14 CEST using DSA key ID 3D739F0D
+gpg: Impossibile controllare la firma: chiave pubblica non trovata
+...........................................................................
+
+Potrebbe scaricare la chiave pubblica con ID 596F0CF4 da un keyserver, ed otterrebbe allora il messaggio:
+
+[role=shell]
+...........................................................................
+gpg: Signature made lun 02 apr 2007 12:40:14 CEST using DSA key ID 3D739F0D
+gpg: Good signature from "Caio <caio@server>"
+gpg: ATTENZIONE: questa chiave non è certificata con una firma fidata!
+gpg:          Non ci sono indicazioni che la firma appartenga al proprietario.
+Impronta digitale della chiave primaria: 1A50 D735 18A5 AA5B 2F65  0D76 BB51 4ED0 3D73 9F0D
+...........................................................................
+
+indicazione del fatto che non ha incontrato di persona chi ha fatto la firma, e non conosce nessuno di cui si fida che abbia verificato questa chiave.
+
+[[fig_NoPubKey]]
+.Non si dispone della chiave pubblica
+image::wpt-sign-04.png[Non si dispone della chiave pubblica]
+
+
+[[fig_WarnNoTrust]]
+.La chiave non è certificata
+image::wpt-sign-05.png[La chiave non è certificata]
+
+
+Caio, nelle stesse situazioni otterrebbe gli avvisi mostrati sopra (<<fig_NoPubKey>> e <<fig_WarnNoTrust>>) rispettivamente per l'assenza della chiave pubblica nel suo portachiavi e per la mancanza di firme fidate sulla chiave.
+Notare la differenza con il caso in cui la firma è verificata: sotto la colonna [.guilabel]#Trust# c'è _None_ invece di _Full_ (cfr. più avanti, <<fig_FileSignOk>>) ed un avviso in testo grigio, poco visibile.
+Differentemente dalla versione a riga di comando, dove questa situazione è ben evidenziata, dalla interfaccia grafica passa un po`' inosservata.
+
+
+== La firma a parte
+
+Pinco vuole mandare a Caio un programma che ha fatto lui stesso.
+Vuole essere sicuro sia che il file arrivi integro, sia che alla ricezione il buon Caio non lo cestini pensando che sia il solito virus che si spedisce come allegato.
+Supponendo che il programma si chiami `utile.exe`, la prima operazione è di generare la firma:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[pinco@pclinux ~]$ *gpg --detach-sign --armor --output firma.asc utile.exe*
+
+You need a passphrase to unlock the secret key for
+user: "Pinco (uno qualsiasi) <pinco@mail>"
+1024-bit DSA key, ID E4F4B420, created 2007-03-21
+
+Inserisci la passphrase:
+...........................................................................
+
+dove le opzioni stanno a significare:
+
+[horizontal]
+`-{wj}-{wj}detach{wj}-{wj}sign` :: fai una firma separata
+`--armor` :: il formato sarà _ASCII-armored_, ossia in testo stampabile protetto da due righe, una all'inizio ed una alla fine.
+`--output` :: è seguito dal nome del file dove deve mettere la firma.
+Se non c'è questa opzione la firma viene stampata a video.
+
+Al termine dell'esecuzione, molto rapida, avremo un file in più il cui contenuto sarà simile al seguente:
+
+----------------------------------------------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBGEQGEc3KmH+T0tCARAu5NAJ9Q6qtsqwXIVXPZVUebOJLDNByxwwCfWN1H
+9oxL5/L/Mpw5ENUyJizwoWY=
+=rtjQ
+-----END PGP SIGNATURE-----
+----------------------------------------------------------------
+
+Pinco scrive il suo messaggio di posta per Caio, e allega sia il file del programma, `utile.exe`, che il file della firma, `firma.asc`.
+
+Il buon Caio si vede arrivare il messaggio, e pur sapendo che Pinco è molto attento e non prende virus, si vuole cautelare e controlla se il file glielo manda proprio Pinco.
+Salva sul Desktop entrambi gli allegati del messaggio, poi dal menu di WinPT seleziona menu:File Manager[], ed esegue un _drag&drop_ del file della firma dentro la finestra del File Manager (<<fig_FileMan>>).
+Può anche selezionare la voce menu:Open...[] dal menù menu:File[], è la stessa cosa.
+
+[[fig_FileMan]]
+.Il File Manager con il file della firma dentro
+image::wpt-fman-01.png[Il File Manager con il file della firma dentro]
+
+
+Dal menu menu:File[] seleziona menu:Verify[], ed ottiene il pannello di scelta in cui indica a quale file si riferisce la firma, in questo caso `utile.exe`.
+Viene controllata la firma e il risultato è immediatamente mostrato: è firmato proprio da Pinco (<<fig_FileSignOk>>).
+
+[[fig_FileSignOk]]
+.La firma è corretta
+image::wpt-fman-02.png[La firma è corretta]
+
+
+Se invece è Caio a voler spedire un file firmato, apre il File Manager di WinPT, trascina il file da firmare dentro la finestra, dal menu menu:File[] seleziona menu:Sign[] ed ottiene un pannello (<<fig_FileManSign>>) su cui seleziona la chiave con cui firmare, sceglie [.guilabel]#Detached Signature# e spunta [.guilabel]#Text Output#.
+Dopo la solita richiesta di password, nella stessa directory del file da firmare ne viene creato un altro con aggiunta in coda l'estensione `.asc`, quindi se il file era `utile.exe` il nome del file della firma sarà `utile.exe.asc`, il cui contenuto sarà molto simile a quello generato da Pinco.
+
+[[fig_FileManSign]]
+.Scelta del tipo di firma
+image::wpt-fman-03.png[Scelta del tipo di firma]
+
+
+Pinco, per verificare la firma di Caio sul file, salverà gli allegati al messaggio da qualche parte, poi userà questo comando:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[pinco@pclinux ~]$ *gpg --verify utile.exe.asc utile.exe*
+gpg: Signature made lun 02 apr 2007 14:10:56 CEST using DSA key ID 3D739F0D
+gpg: Good signature from "Caio <caio@server>"
+...........................................................................
+
+Ora possiedono entrambi un robusto sistema di verifica dell'identità, e possono farvi affidamento per lo scambio di messaggi e dati con la certezza di saperne sempre la provenienza.
+
+
+== Aiutare Mallory a far danni
+
+Nonostante la robustezza e l'affidabilità di tutto il sistema di firma e verifica, usandolo in modo ingenuo o improprio si può facilmente e velocemente gettare al vento la propria sicurezza e riservatezza.
+Non c'è bisogno di perdere i file di GnuPG o mettere il proprio certificato di revoca in un circuito di scambio file, è sufficiente essere trascurati.
+
+Supponiamo che il nostro Mallory (cfr. <<sez_personaggi>>), in vena di scherzi, trovi un messaggio di Caio ad un amico, debitamente firmato, il cui testo sia:
+
+-------------------------------------
+Devo parlarti di una cosa importante,
+passo da te alle 17, aspettami.
+-------------------------------------
+
+Il messaggio è di qualche mese prima, e non era originariamente diretto a Pinco.
+Incollando all'interno di un nuovo messaggio il testo compreso di firma, confeziona un falso in cui il mittente sembra proprio Caio, cosa piuttosto facile con molti servizi di posta elettronica, e lo spedisce a Pinco.
+
+Questi, alla ricezione del messaggio, verifica la firma è effettivamente corretta.
+Rimane in ufficio fino alle 17, anche se normalmente termina il lavoro alle 15.
+Arrivate le 18 comincia a innervosirsi, e chiama Caio, che cade dalle nuvole.
+
+Ci sono due ingenuità, una commessa da Caio, ed una commessa da Pinco:
+
+* Caio ha messo _all'interno del messaggio_ pochissimi dettagli ed indicazioni sul destinatario.
+Il messaggio è troppo generico e Mallory ha potuto utilizzarlo senza destare sospetti.
+* Pinco non ha controllato la data in cui la firma è stata apposta al messaggio.
+Se lo avesse fatto, avrebbe notato che la firma era generata giorni o mesi prima, comunque in data molto antecedente alla data di spedizione del messaggio.
+
+Comprendo che può sembrare paranoico, e che l'esempio è in effetti un po`' esagerato.
+Chiaramente il contenuto reale dei messaggi firmati sarà di solito molto più articolato e certamente più specifico, ma un errore di questo tipo può essere commesso se ad esempio il documento vero è in allegato, firmato, e il messaggio di posta che lo trasporta, ugualmente firmato, è generico e sbrigativo come quello mostrato, cosa non infrequente.
+
+Uno dei punti deboli del sistema è la certificazione della data e ora della generazione della firma.
+La data è cifrata insieme all'hash, e quindi non è falsificabile: anche supponendo che Mallory sia così in gamba da riuscire a separare l'hash dalla data e metterne una differente, _non ha la chiave privata di Caio_, e non può cifrare la sequenza hash+data per generare una nuova firma di Caio (cfr. <<Crittografia simmetrica e asimmetrica>>).
+
+Però il riferimento temporale viene preso dal computer in cui viene eseguita l'operazione, e può succedere che sia errata, oltre al fatto che non è certificata da nessuno, a parte il firmatario.
+Mi sono capitati computer che per motivi vari perdevano le impostazioni dell'orologio interno, e ci si trovava facilmente in un altro mese o addirittura anno.
+Questa eventualità è purtroppo impossibile, al momento attuale, da verificare a posteriori su una firma, tranne casi estremi, ad esempio se la firma sia _precedente_ alla data di generazione delle chiavi, per via dell'orologio che è saltato a qualche anno prima al momento della firma.
+
+L'inconveniente della data può essere risolto in molti modi, per esempio tenendo sincronizzato l'orologio del proprio computer con uno dei tanti servizi di NTP (_Network Time Protocol_) gratuiti disponibili in rete.
+Linux include in praticamente tutte le distribuzioni il servizio `ntpd` che si occupa proprio di questo, come pure le ultime versioni di Windows.
+
+Un'altra possibilità è l'uso della cifratura per impedire anche solo di leggere il contenuto del messaggio nel caso venga intercettato, ma lo vedremo più avanti.
+
+Quello su cui ci interessa concentrare l'attenzione è che un uso improprio o ingenuo può mandare in malora anche il sistema di sicurezza più sofisticato e robusto.
+Il _fattore umano_, cioè noi ed il nostro comportamento, sono sempre la principale fonte a cui attingono i vari Mallory in giro per il mondo per le loro malefatte.
+
+
+== La Rete della Fiducia
+
+Fino ad ora abbiamo considerato soltanto persone che si conoscono e si sono incontrate per scambiarsi le chiavi.
+I problemi sorgono quando due persone non si sono mai incontrate, e non hanno possibilità di incontrarsi.
+
+Arriva il giorno in cui Caio scrive a Tizio.
+Non si conoscono, e Caio dice nel messaggio che il suo indirizzo di posta elettronica lo ha avuto da Pinco.
+Tizio chiama al telefono Pinco e gli chiede di Caio, che tipo è, e se c'è da fidarsi.
+Però non basta: il messaggio è stato firmato con una chiave che appartiene veramente a Caio?
+
+Il messaggio è del tipo con firma all'interno, ed al controllo con GnuPG risulta:
+
+[role=shell,subs=quotes]
+...........................................................................
+[tizio@miopc ~]$ *gpg --verify msg-da-caio.txt*
+gpg: Signature made lun 02 apr 2007 12:40:14 CEST using DSA key ID 3D739F0D
+gpg: Impossibile controllare la firma: chiave pubblica non trovata
+...........................................................................
+
+per cui prende dal keyserver la chiave di Caio, nel modo consueto:
+
+[role=shell,subs="specialchars,quotes"]
+.....................................................................
+[tizio@miopc ~]$ *gpg --recv-key 0x3D739F0D*
+gpg: key 3D739F0D: public key "Caio <caio@server>" imported
+gpg: Numero totale esaminato: 1
+gpg:              importate: 1
+gpg: 3 marginal(s) needed, 1 complete(s) needed, classic trust model
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   1  trust: 0-, 0q, 0n, 1m, 0f, 0u
+gpg: il prossimoi controllo del trustdb sarà fatto il 2037-03-13
+.....................................................................
+
+Ecco intanto il primo effetto del livello di fiducia che Tizio aveva assegnato a Pinco (<<Fidarsi degli amici>>): dato che era _parziale_, all'aggiunta di una nuova chiave che risulta firmata da Pinco, GnuPG avvia una verifica attraverso il database della Rete della Fiducia ed al primo livello (_depth: 0_) c'è la chiave di Pinco, firmata direttamente da Tizio, la cui firma ha valore di _trust_ pari ad _ultimate_, dato che è la sua stessa firma.
+Al secondo livello (_depth: 1_) c'è la chiave di Caio, firmata da Pinco, ma la firma di Pinco ha fiducia _parziale_ che in questo caso determina la non affidabilità della chiave di Caio, come andiamo a vedere.
+
+Controlliamo le firme sulla chiave pubblica di Caio con il comando:
+
+[role=shell,subs="specialchars,quotes"]
+....................................................................
+[tizio@miopc ~]$ *gpg --list-sigs Caio*
+pub   1024D/3D739F0D 2007-03-21
+uid                  Caio <caio@server>
+sig 3        3D739F0D 2007-03-21  Caio <caio@server>
+sig          E4F4B420 2007-03-29  Pinco (uno qualsiasi) <pinco@mail>
+sub   2048g/32F7C2EE 2007-03-21
+sig          3D739F0D 2007-03-21  Caio <caio@server>
+....................................................................
+
+che mostra la firma di Pinco, come ci aspettavamo, ma alla verifica della firma di Caio sul messaggio ecco cosa succede:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[tizio@miopc ~]$ *gpg --verify msg-da-caio.txt*
+gpg: Signature made lun 02 apr 2007 12:40:14 CEST using DSA key ID 3D739F0D
+gpg: controllo il trustdb
+gpg: 3 marginal(s) needed, 1 complete(s) needed, classic trust model
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   1  trust: 0-, 0q, 0n, 1m, 0f, 0u
+gpg: il prossimoi controllo del trustdb sarà fatto il 2037-03-13
+gpg: Good signature from "Caio <caio@server>"
+gpg: ATTENZIONE: questa chiave non è certificata con firme abbastanza fidate!
+gpg:          Non è sicuro che la firma appartenga al proprietario.
+Impronta digitale della chiave primaria: 1A50 D735 18A5 AA5B 2F65  0D76 BB51 4ED0 3D73 9F0D
+...........................................................................
+
+Il messaggio è chiaro: l'unica firma di convalida sulla chiave pubblica di Caio è di Pinco, di cui Tizio ha deciso di non fidarsi completamente, quindi non c'è possibilità: Tizio non può accertare che quel messaggio venga proprio da Caio.
+
+Siamo al punto di partenza: pur sapendo che Pinco ha incontrato Caio e si sono scambiati e certificati le chiavi, Tizio ha deciso che non si fida delle certificazioni di Pinco.
+
+Decide di rispondere comunque a Caio, che invece si fida delle certificazioni fatte da Pinco.
+Caio riceve il messaggio di Tizio e lo passa alla verifica, usando il File Manager di WinPT.
+Per scrupolo controlla se la chiave di Tizio è effettivamente firmata da Pinco: usando il Key Manager, fa un clic col tasto destro del mouse sulla firma di Tizio e seleziona menu:List Signatures[] (<<fig_ListSigs>>).
+
+[[fig_ListSigs]]
+.Lista delle firme
+image::wpt-sign-06.png[Lista delle firme]
+
+
+Effettivamente la firma c'è, e procede a verificare la provenienza del messaggio: seleziona tutto il testo del messaggio e lo inserisce nella Clipboard con la consueta combinazione di tasti kbd:[Ctrl+C], dal menù di WinPT seleziona menu:Clipboard[Decrypt/Verify].
+Il messaggio di risposta reca sotto la colonna [.guilabel]#Trust# la parola _Full_ (<<fig_SigFull>>).
+La firma è corretta e certificata per tramite della fiducia che Caio ripone in Pinco.
+
+[[fig_SigFull]]
+.Firma valida e certificata
+image::wpt-sign-07.png[Firma valida e certificata]
+
+
+== Quando usare la firma digitale
+
+È umano che appena ottenuta la nostra firma nuova, appena sfornata, si firmi qualsiasi cosa, anche messaggi che nella realtà non verrebbe mai in mente di firmare.
+Vale la pena soffermarci un attimo sulla effettiva utilità di una firma e indicare alcuni casi in cui la firma digitale può essere estremamente utile:
+
+* Quando il messaggio o il documento ha un impatto economico di qualsiasi genere.
+Ad esempio le fatture o i documenti fiscali, le ricevute di pagamento in formato elettronico, sempre più spesso anticipate per e-mail, possono essere rese più attendibili con una firma digitale.
+* Quando si intende provare sia la provenienza che l'integrità di un qualsiasi file o documento.
+Se sviluppiamo software, i file dei programmi possono essere accompagnati da una firma digitale, aggiungendo una notevole dose di sicurezza per chi li dovesse scaricare dal nostro sito web, o riceverli per posta elettronica.
+* Diminuire l'incidenza dei virus.
+Se ci giunge un allegato da qualcuno che conosciamo, spesso ci troviamo nell'imbarazzo di capire se è un messaggio vero o siamo davanti ad un virus che cerca di ingannarci per far aprire l'allegato.
+Se i messaggi fossero firmati, allegato compreso, la verifica è immediata.
+Il virus non può firmare i messaggi, anche se ha accesso ai file di GnuPG, perché non conosce la password che protegge la nostra chiave privata.
+
+Il campo è piuttosto circoscritto, e passata l'euforia iniziale l'uso della firma sarà automatico solo quando effettivamente necessario.
+Poi ovviamente nessuno vieta di firmare ogni nostro messaggio e documento, ma è una fatica inutile.

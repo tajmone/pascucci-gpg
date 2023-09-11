@@ -1,0 +1,84 @@
+= Conclusione
+
+.Un grazie a Pinco, Caio e Tizio
+****
+Ora abbiamo uno strumento in più per il nostro lavoro, quale che sia.
+Anche se non siamo "`informatici`" di professione, l'uso di un sistema di firma digitale e crittografia può aumentare in modo significativo il livello di sicurezza delle nostre comunicazioni in Internet, che, come ho già ripetuto più volte, è un luogo ostile.
+****
+
+
+== Riferimenti
+
+A chi vuole approfondire l'argomento crittografia in generale, consiglio il libro _Codici e segreti_ di Simon Singh.
+
+In Internet l'argomento è trattato fin nei dettagli più minuziosi, comprese le tecniche per spezzare le cifrature più disparate.
+Tanto per dare un punto di partenza, consiglio i link che seguono:
+
+////
+NOTA (by @tajmone): Il link originale:
+    http://rechten.uvt.nl/koops/cryptolaw/index.htm
+è stato sostituito con:
+    http://www.cryptolaw.org/
+dato che il Crypto Law Survey è stato spostato a un dominio independente:
+    https://web.archive.org/web/20150821042527/http://rechten.uvt.nl/koops/cryptolaw/index.htm
+////
+
+* https://www.gnupg.org[www.gnupg.org^]:
+il sito di GnuPG, nella parte di documentazione contiene molto materiale sulla Rete della Fiducia e sulla crittografia.
+* https://it.wikibooks.org/wiki/Crittografia[^]:
+un testo liberamente disponibile, in scrittura, sulla crittografia.
+* https://www.interlex.it[www.interlex.it^]:
+sito italiano che tratta di argomenti legali correlati con la tecnologia dell'informazione.
+Molto ampia e ben fatta la sezione legata alla firma digitale.
+* http://www.cryptolaw.org[http://rechten.uvt.nl/koops/cryptolaw/index.htm^]:
+una panoramica delle leggi sulla crittografia nei paesi del mondo.
+Viene aggiornato ad ogni inizio anno.
+* https://www.schneier.com[www.schneier.com^]:
+sito web personale di Bruce Schneier, un affermato esperto di sicurezza e crittografia.
+Le sue newsletter sono tradotte anche in italiano, e mantiene un blog che vale la pena seguire, anche se disponibile solo in lingua inglese.
+* https://www.wikipedia.org[www.wikipedia.org^]:
+l'enciclopedia multilingue libera.
+Nella parte italiana e inglese si trovano ampie trattazioni sugli algoritmi crittografici e sulla crittografia in generale.
+Tutte le notizie in questo testo sono prese da Wikipedia, se non disponibili in altro modo.
+
+
+== Strumenti utilizzati
+
+Per realizzare questo documento ho usato l'ambiente di creazione ed elaborazione testi di Fedora, aderente allo standard
+https://tdg.docbook.org[DocBook XML^].
+
+Per le immagini ho usato The Gimp
+(https://www.gimp.org[www.gimp.org^]),
+splendido programma di manipolazione di manipolazione grafica, disponibile sia in Windows che in Linux.
+
+Il file XML sorgente di questo documento è stato realizzato con VIM
+(http://www.vim.org[www.vim.org^]),
+usando alcuni file di personalizzazione ed un paio di script per la digitazione rapida dei tag XML più usati.
+
+
+== Ringraziamenti
+
+Un sentito ringraziamento a mia moglie, che tollera le ore passate dal sottoscritto al computer, e che per fortuna non si occupa di informatica.
+
+Il team di sviluppo di GnuPG ed i curatori del sito web e di tutta la documentazione meritano incondizionata gratitudine, per il loro ottimo lavoro e prezioso contributo alla comunità.
+
+Senza l'ottimo lavoro fatto dal team di sviluppo di Fedora, la mia distribuzione Linux di riferimento, questo documento non avrebbe potuto vedere la luce.
+Ovviamente la stessa gratitudine va a tutti gli innumerevoli individui che contribuiscono alla realizzazione di tutto il software open source che costituisce il corpo del sistema operativo Linux e il suo contorno di applicazioni adatte a tutte le esigenze.
+
+Un grazie, si fa per dire, alla programmazione televisiva, in virtù della quale ho recuperato tante ore che passo in modi più piacevoli e costruttivi, almeno per me.
+
+
+== Licenza
+
+Questo documento è liberamente consultabile, stampabile e distribuibile, ma sotto le limitazioni di una
+https://creativecommons.org/licenses/by-nc-nd/2.5/it/[Licenza Creative Commons^],
+e citando chiaramente la fonte.
+
+
+== Aggiornamenti e novità
+
+La versione originale di questo scritto è sul mio sito:
+https://web.archive.org/web/20080314085426/http://www.ismprofessional.net/pascucci/documenti/gpg/[http://www.ismprofessional.net/pascucci^, title="link a copia del sito archiviata su Wayback Machine"],
+dove saranno pubblicate le eventuali nuove versioni del testo che state leggendo, e dove potete trovare molto altro.
+
+Venite a trovarmi, vi aspetto!

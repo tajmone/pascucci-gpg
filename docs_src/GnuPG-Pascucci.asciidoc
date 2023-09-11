@@ -1,0 +1,68 @@
+= GnuPG: Crittografia, Privacy e Open Source
+Mario Pascucci <mpascucci@gmail.com>
+0.5.0, 2007-04-07: AsciiDoc
+:lang: it
+include::_attributes-it.adoc[tag=attributes-it]
+:doctype: book
+:description: GnuPG: Crittografia, Privacy e Open Source — Guida \
+    gratuita di Mario Pascucci all’uso di GPG (GNU Privacy Guard).
+:keywords: GnuPG, gpg, gnu privacy guard, crittografia, privacy, windows, linux
+// TOC Settings:
+:toclevels: 5
+:toc: left
+// Sections Numbering:
+:sectnums:
+:sectnumlevels: 2
+// Cross References:
+:idprefix:
+:xrefstyle: short
+// Misc Settings:
+:experimental:
+:icons: font
+:linkattrs:
+:reproducible:
+:sectanchors:
+// Paths:
+:imagesdir: img
+
+[role=newedition]
+****
+https://github.com/tajmone/pascucci-gpg[Nuova edizione AsciiDoc^, title="repository sorgente del progetto su GitHub"]
+a cura di
+https://github.com/tajmone[Tristano Ajmone^, title="Profilo GitHub di Tristano Ajmone"]
+(settembre 2023), dal testo originale in HTML:
+
+* link:https://web.archive.org/web/20130203005312/http://www.ismprofessional.net/pascucci/documenti/gpg/[http://www.ismprofessional.net/pascucci/documenti/gpg/^, title="Edizione originale della guida GnuPG di Mario Pascucci (copia archivio Wayback Machine 2013)"]
+****
+
+[.center]
+[%autowidth]
+|===============================================================================
+4+^| Diario delle Revisioni
+
+| Revisione 0.5.0 | 2007-04-11 | MP | Revisione totale per la pubblicazione sul web
+| Revisione 0.4.0 | 2005-10-10 | MP | Revisione del primo capitolo per la pubblicazione
+| Revisione 0.3.0 | 2005-09-09 | MP | Completato aggiungendo il glossario
+| Revisione 0.2.0 | 2005-08-31 | MP | Ampliamento alla crittografia e alla versione Windows
+| Revisione 0.1.0 | 2005-06-08 | MP | Prima versione, contenente solo la parte relativa alla firma digitale per Linux
+|===============================================================================
+
+:leveloffset: +1
+
+include::0_Presentazione.adoc[]
+
+include::1_Introduzione.adoc[]
+
+include::2_Fondamenta.adoc[]
+
+include::3_Chiavi.adoc[]
+
+include::4_Firma.adoc[]
+
+include::5_Crittografia.adoc[]
+
+include::6_Conclusione.adoc[]
+
+include::7_Glossario.adoc[]
+
+:leveloffset: 0

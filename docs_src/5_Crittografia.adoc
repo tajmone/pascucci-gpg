@@ -1,0 +1,465 @@
+= Uso della crittografia
+
+.Dopo la firma... la riservatezza.
+****
+Dopo aver preso confidenza con le chiavi pubbliche e private, la firma digitale, e imparato ad usare i principali programmi di gestione, vediamo come sfruttare le ulteriori possibilità che GnuPG mette a disposizione.
+****
+
+
+== Crittografia simmetrica
+
+Se non intendiamo percorrere tutta la procedura di generazione e convalida delle chiavi, ma abbiamo necessità di scambiare dati e informazioni riservate con qualcuno, o di proteggere i nostri affari da occhi indiscreti, possiamo usare la crittografia simmetrica messa a disposizione da GnuPG.
+Ricordiamo che con simmetrica si indica l'uso di una singola chiave, identica sia per cifrare che decifrare.
+Lo svantaggio è che la chiave diventa preziosa dato che permette di accedere al contenuto, e quindi deve essere comunicata tramite canali sicuri.
+Il vantaggio è che per accedere al contenuto basta il solo GnuPG senza necessità di generare alcuna coppia di chiavi.
+
+Per cifrare un messaggio o un file usando la crittografia simmetrica basta impartire il comando giusto, supponendo che il file si chiami `documento.txt`:
+
+[role=shell,subs=quotes]
+..................................................
+[pinco@pclinux ~]$ *gpg --symmetric documento.txt*
+Inserisci la passphrase:
+..................................................
+
+La _passphrase_ è la chiave di cifratura.
+Viene chiesta due volte per sicurezza, ed alla fine della cifratura viene generato un file con lo stesso nome con aggiunta in fondo l'estensione `.gpg`, nel nostro caso `documento.txt.gpg`.
+Il file è in binario, nel senso che contiene caratteri non stampabili a schermo.
+Se per qualche motivo occorre l'output in ASCII stampabile, per esempio volendo includerlo in un messaggio invece di allegarlo, possiamo aggiungere l'opzione `-{wj}-{wj}armor` come di consueto.
+Ad esempio se il contenuto di `documento.txt` è il seguente:
+
+-------------------------
+Messaggio di prova
+da sottoporre a cifratura
+la password sara' "test"
+Ciao
+-------------------------
+
+dopo averlo cifrato con il comando:
+
+[role=shell,subs=quotes]
+..........................................................
+[pinco@pclinux ~]$ *gpg --armor --symmetric documento.txt*
+..........................................................
+
+avremo un file dal nome `documento.txt.asc` il cui contenuto sarà:
+
+----------------------------------------------------------------
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+jA0EAwMCFEeD1Sk8GFhgyWqbyuWH8XI2v95M1vZEtfHbD5rA6USmOS3PN+kti0yr
+DHfgEYpbSq9Zp878MykeaMJOXosGs3Srl75kTQrYuWRdrqrX8/DwOUvP6/JzOdUb
+Hi2Un6GapeqF6GRSx8CvFHHBgffyIaunQ0E2
+=nEIp
+-----END PGP MESSAGE-----
+----------------------------------------------------------------
+
+che puo' essere inserito in un messaggio di posta elettronica senza creare allegati.
+
+[NOTE]
+.Ogni messaggio cifrato è diverso
+===========================================
+Se proviamo a cifrare due volte lo stesso messaggio con la stessa password otterremo due risultati totalmente differenti: questo perché il processo di cifratura coinvolge anche l'uso di numeri casuali, in modo da dare ogni volta messaggi differenti in presenza dello stesso testo e della stessa password.
+===========================================
+
+Per decifrarlo, il processo è ancora più semplice, dato che GnuPG individua automaticamente il formato del messaggio, che sia _ASCII armored_ o binario:
+
+[role=shell,subs=quotes]
+....................................................
+[pinco@pclinux ~]$ *gpg --decrypt documento.txt.gpg*
+gpg: dati cifrati con CAST5
+Inserisci la passphrase:
+....................................................
+
+si inserisce la password e si ottiene il messaggio originale stampato a video:
+
+[role=shell]
+...........................................................
+gpg: cifrato con 1 passphrase
+Messaggio di prova
+da sottoporre a cifratura
+la password sara' "test"
+Ciao
+gpg: ATTENZIONE: l'integrità del messaggio non era protetta
+...........................................................
+
+i messaggi indicano che si è usato l'algoritmo _CAST5_, con una singola password, e che l'integrità del messaggio non è assicurata.
+
+L'algoritmo di cifratura si può cambiare, scegliendolo fra quelli conosciuti da GnuPG.
+Ricordiamo che la lista si ottiene con il comando:
+
+[role=shell,subs=quotes]
+.............................................................
+[pinco@pclinux ~]$ *gpg --version*
+gpg (GnuPG) 1.4.7
+Copyright (C) 2006 Free Software Foundation, Inc.
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions. See the file COPYING for details.
+
+Home: ~/.gnupg
+Algoritmi gestiti:
+A chiave pubblica: RSA, RSA-E, RSA-S, ELG-E, DSA
+Cifrari: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH
+Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+Compressione: Non compresso, ZIP, ZLIB, BZIP2
+.............................................................
+
+nella riga _Cifrari_, in inglese _Cypher_.
+Se cambiamo algoritmo, dobbiamo tener presente che non tutte le versioni di GnuPG hanno lo stesso elenco, per cui, prima di inviare il messaggio a qualcuno, controlleremo che possa decifrarlo.
+
+Si può cifrare un messaggio più volte in sequenza, usando differenti password, altrimenti non ha senso.
+Chi lo riceve dovrebbe applicare le decifrazioni in sequenza inversa rispetto a chi lo invia.
+In questo caso era cifrato una sola volta.
+
+Non trovando firme digitali, la sola cifratura non è sufficiente a garantire l'integrità del messaggio, e viene dato il messaggio di avvertimento corrispondente.
+
+Se ci viene inviato un file generico, il cui contenuto non è direttamente leggibile, come ad esempio un programma, è più utile che il file venga decifrato e salvato direttamente col nome che aveva in origine, per cui il comando di decifrazione diventa:
+
+[role=shell,subs=quotes]
+..........................................................
+[pinco@pclinux ~]$ *gpg --decrypt-files documento.txt.gpg*
+Inserisci la passphrase:
+..........................................................
+
+e dopo aver digitato due volte la password:
+
+[role=shell]
+...........................................................
+gpg: dati cifrati con CAST5
+gpg: cifrato con 1 passphrase
+gpg: ATTENZIONE: l'integrità del messaggio non era protetta
+...........................................................
+
+ottenendo il file originale `documento.txt`.
+
+Lavorando con WinPT le procedure sono molto simili a quelle viste per firmare i messaggi.
+Una volta scritto il messaggio con il nostro programma di posta preferito (<<fig_WptMsg>>), selezioniamo tutto il testo, lo copiamo nella clipboard e dal menù di WinPT selezioniamo menu:Clipboard[Symmetric].
+
+
+[[fig_WptMsg]]
+.Il messaggio da cifrare
+image::wpt-sym-01.png[Il messaggio da cifrare]
+
+
+Viene chiesta due volte la password, ed appena terminata l'operazione possiamo incollare il messaggio cifrato nella finestra del programma di posta, che appare con il testo cifrato in modalità _ASCII armored_ (<<fig_WptEnc>>).
+
+[[fig_WptEnc]]
+.Il messaggio cifrato
+image::wpt-sym-02.png[Il messaggio cifrato]
+
+
+Questa procedura con il passaggio nella clipboard ci assicura che il tutto funziona indipendentemente dal programma che andiamo ad usare per la posta elettronica, ed anche se utilizziamo il browser per gestire la posta attraverso una applicazione di webmail.
+
+Se invece vogliamo cifrare un file qualsiasi, basta richiamare il File Manager di WinPT e selezionare il file da cifrare con un _drag&drop_ o dal menù menu:File[Open...] (<<fig_WptFile>>).
+Poi dal menù menu:File[] scegliere menu:Symmetric[], digitare due volte la password quando viene chiesta, ed il file viene immediatamente cifrato, ottenendo un altro file con lo stesso nome ed estensione `.gpg` (<<fig_WptFileEnc>>).
+
+
+[[fig_WptFile]]
+.Il file da cifrare dentro il File Manager
+image::wpt-sym-03.png[Il file da cifrare dentro il File Manager]
+
+
+[[fig_WptFileEnc]]
+.Il file è cifrato
+image::wpt-sym-04.png[Il file è cifrato]
+
+
+Per decifrare un messaggio ricevuto direttamente dentro la finestra dell'applicazione, ad esempio in webmail, selezioniamo tutto il testo, lo inseriamo nella clipboard con la solita sequenza kbd:[Ctrl+C], poi dal menù di WinPT prendiamo menu:Clipboard[Decrypt/Verify], ed avremo il vostro messaggio in chiaro.
+Per visualizzarlo lo possiamo incollare dentro il Notepad, oppure usare il visualizzatore di Clipboard di WinPT, alla voce menu:Clipboard[Edit].
+
+Se invece dobbiamo decifrare un file, la procedura con il File Manager di WinPT è identica alla cifratura: si seleziona il file da decifrare, dal menù menu:File[] si sceglie menu:Decrypt[] e dopo la digitazione della password corretta si ottiene il file originale in chiaro.
+
+
+== La combriccola si mette in mezzo
+
+Visto che vogliamo pensarle proprio tutte, ci mettiamo dalla parte di Eve, Trudy e Mallory, e vediamo come si possano sfruttare ingenuità ed errori per creare confusione.
+
+Supponiamo, ovviamente, che non sappiano la password usata per la cifratura.
+Se Eve intercetta il messaggio, può solo tentare un attacco _brute force_, con tutte le password possibili.
+L'unica salvezza è nella bontà della password.
+Se si usa una parola di senso compiuto, anche in altra lingua, la chiave viene trovata in poco tempo, questione di minuti, ed è sufficiente un semplice calcolo per provarlo.
+
+Un dizionario standard di una qualsiasi lingua comprende da un minimo di cinquantamila parole ad un massimo di circa centocinquantamila.
+Supponendo per comodità che una lingua media contenga centomila parole, e sommando le cinque lingue principali (inglese, francese, spagnolo, tedesco, italiano), si ottengono mezzo milione di parole.
+Un programma lento di solito può tentare mille parole al secondo, ed il tempo medio di rottura della password sarebbe di duecentocinquanta secondi, _poco più di quattro minuti_.
+
+Se invece si usa una sequenza casuale di sei caratteri, comprendendo maiuscole, minuscole, numeri e simboli per un totale di 95 differenti caratteri, i tentativi teorici per trovare la password salgono a _seicentonovanta miliardi_, ed occorrerebbero in media più di _dieci anni_, usando lo stesso programma di ricerca password.
+
+Trudy può avere un po`' di successo sfruttando una debolezza nell'algoritmo di cifratura, comune a molti di essi: per cifrare efficientemente una qualsiasi sequenza di dati, la si suddivide in blocchi di lunghezza prefissata e si cifra un blocco alla volta.
+Se Trudy è abbastanza abile, può scambiare la posizione di due blocchi o fare altre modifiche che lascino inalterati i singoli blocchi, ed il messaggio risultante sarebbe illeggibile, pur essendo decifrabile senza problemi.
+Non otterrebbe grandi vantaggi, se non il fatto di rendere difficile la comunicazione e costringere a continue ritrasmissioni.
+
+Il nostro Mallory non ha molte possibilità in più, oltre ai metodi di Eve e Trudy.
+Per nostra fortuna, i moderni algoritmi soffrono molto meno dei problemi di cui soffriva Enigma, e le risorse necessarie ad attaccarne uno sono decisamente al di fuori della portata di chiunque, almeno per ora.
+
+Diventa però preponderante il problema della distribuzione delle chiavi, su cui tutto il castello della crittografia simmetrica cade, e soltanto per colpa del fattore umano.
+Tipicamente, si mandano due messaggi di posta elettronica, uno con la password, ed uno con il messaggio cifrato.
+Con tanti saluti al segreto, visto che se il nostro malefico terzetto può intercettare un messaggio, ne può intercettare due senza tanti problemi.
+
+La precauzione minima è di usare due canali di comunicazione differenti, ad esempio telefono o un SMS per la password ed e-mail per il messaggio, oppure accordarsi prima, di persona.
+
+Tutto questo in funzione del livello di segretezza richiesto.
+Se devo comunicare i dati del mio conto corrente a qualcuno, basta una telefonata per la password.
+Se invece sono una società di ricerca che sta per brevettare qualcosa di rivoluzionario, non è proprio il caso di affidarmi al telefono.
+In definitiva, tutto deve essere commisurato a quanto è importante il segreto per me e soprattutto quanto può far gola.
+
+
+== Utilità della crittografia simmetrica
+
+Un possibile uso del sistema di crittografia a chiave simmetrica è per la realizzazione dei backup dei file di lavoro di GnuPG, problema scottante che avevamo lasciato in sospeso.
+
+Abbiamo due problemi distinti e contrastanti: salvaguardare i dati delle chiavi private e del database della fiducia, quindi averne più copie in luoghi differenti, ed impedire l'accesso non autorizzato ai file, quindi conservarli in un solo posto ben protetto.
+Una soluzione possibile è appunto di crearne un backup su singolo file, anche compresso, e poi cifrarlo con chiave simmetrica prima di salvarlo su un supporto a scelta, per esempio un CD registrabile.
+
+Il vantaggio è che, anche a seguito della completa distruzione dei file di lavoro di GnuPG, per esempio a causa di un guasto al disco fisso, è possibile recuperare i file dal backup usando la sola chiave di cifratura, anche senza disporre delle chiavi private, che non sono necessarie con la cifratura a chiave simmetrica.
+
+Da questo esempio ne discende la effettiva utilità di questo tipo di crittografia, impiegabile per difendere dati personali, la cui chiave di cifratura non deve essere trasmessa in alcun modo.
+In sostanza, se tutto rimane dentro le nostre mura, ed i dati da proteggere sono soltanto per i nostri occhi, abbiamo trovato lo strumento ideale.
+
+
+== Crittografia a chiave pubblica
+
+Se, al contrario, vogliamo comunicare con qualcuno ed essere certi che solo lui possa leggere il messaggio, senza comunicare password e senza incontrarsi prima, dobbiamo tornare ad usare le coppie di chiavi pubbliche/private.
+Diversamente dalla firma digitale, dove usiamo la chiave privata per firmare e chi vuole controllare l'autenticità della firma stessa deve usare la chiave pubblica, quando vogliamo comunicare con qualcuno usiamo la sua chiave pubblica per cifrare, e alla ricezione questi userà la sua chiave privata per decifrare e leggere il messaggio, e solo chi possiede quella chiave può farlo.
+
+Torniamo a chiedere aiuto ai nostri amici: Pinco deve mandare a Caio il numero della sua carta di credito, ed ovviamente non vuole che altri possano leggerlo.
+Inoltre, visto che si tratta di una transazione di denaro, vuole firmare il messaggio per attestare che è proprio suo.
+Il testo supporremo sia questo:
+
+-----------------------------------------------------------
+Caro Caio,
+come da accordi ti invio i dati della mia carta di credito.
+Carta Gold Special
+numero ABC 123
+scadenza 12/2010
+A presto
+Pinco
+-----------------------------------------------------------
+
+memorizzato in un file dal nome `carta.txt`.
+Il comando usato è:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................
+[pinco@pclinux ~]$ *gpg --armor --sign --encrypt carta.txt*
+
+You need a passphrase to unlock the secret key for
+user: "Pinco (uno qualsiasi) <pinco@mail>"
+1024-bit DSA key, ID E4F4B420, created 2007-03-21
+
+Inserisci la passphrase: _Qui viene digitata la password_
+
+Non hai specificato un user ID. (puoi usare "-r")
+
+Current recipients:
+
+Inserisci l'user ID. Termina con una riga vuota:
+...........................................................
+
+Non avendo indicazioni, GnuPG ha bisogno di sapere quale sia il destinatario del messaggio, per poterlo cifrare con la chiave pubblica giusta, che ricordiamo deve essere quella di chi riceve il messaggio.
+Si può usare il nome, l'indirizzo di posta elettronica o proprio l'ID in esadecimale.
+Se ci sono ambiguità viene richiesto di specificare meglio.
+Si possono specificare più nomi, il messaggio conterrà una copia cifrata del messaggio per ogni destinazione, in un unico blocco, ed ogni destinatario decifrerà con la sua chiave privata.
+
+Per semplificare le cose, si può anche specificare direttamente il destinatario nel comando, usando l'opzione `-{wj}-{wj}recipient` seguita dal nome, l'ID o l'indirizzo di posta.
+
+Il messaggio è destinato a Caio, quindi:
+
+[role=shell,subs="specialchars,quotes,macros"]
+...........................................................................
+Inserisci l'user ID. Termina con una riga vuota: *Caio*
+
+Current recipients:
+2048g/32F7C2EE 2007-03-21 "Caio <caio@server>"
+
+Inserisci l'user ID. Termina con una riga vuota: _Qui si preme_ kbd:[Invio]
+...........................................................................
+
+ottenendo il file `carta.txt.asc` il cui contenuto è:
+
+----------------------------------------------------------------
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+hQIOA/+Dnjwy98LuEAf/dnO0CLem/wPK5U77xV3ow3+EHXMcTQco+KzNBuc3fHTt
+ClzZpJVDd02pfo/2B9KqaioRDl8TLMfiLg15rJW1hYWT/d0qXvYHNt6EjhDWfP52
+n2YY33EbmpEkkB4/XDNQ1C9uOFtKD9W9iYZOK3ARmoC6/E/BGGpxagwFcUAai+sD
+qNBVMP+o1gsTcq2/qJ9NUJdlQdnJE+pJuXUGNuw41H3Rr51Nl9z5uizMKTArqLfT
+gI7drwwD30KXr8Np7JkDL0Ho8KM00HqHlCSatIZ2sEXLQDnWojnYsfmfG8zz2QS4
+JkSdcNF+45rrM3FxJQ3l8TZsYV8ipRHxEdWOmBWQTwgAoB+RXktoR0x/+smTcfri
+FFW37gz2HSczBhDtNa4JeBxSuDud1kjjTVrCBI9U1Ew6JQEG88xvECgLCEu1py53
+VqGFWABY1vOeoKkCaVmkuuq9/CRvk6D2ygVxm1CTVAt7zh+e1tdu8Tvfq4Vs2Kpz
+reVdbtXLRnB0vECsudn1UjDgmbSsUaZD0fGV4sOnnxkirdVCQHW2X6iodQmUXMCu
+cF3vYuGryFIWy39nkXIFkQCk938dah3qgNkBeWZuBK3HLILDkaq5ohCHIOVpp0R1
+PhT90wr5I0S3NohqYg8rvsSzB26xgTXXf7SXvXwSZnn/juLQq68VQOF8SMB7boVa
+g9LATwG/0/42J85fm9To2tEV4zZlvx/WMip4GxYT5nljWstKFdcEMWwP2kbDoaBI
+VqIoeTx/5vFgzvQpFZGnpnW7Umtt7GDfvmVtFC+bHleTUEWuvjWjxGy79Tkerlzf
+oSJDCvZCrA+vOhHnsC/ueCdFXBRLxS4VvQvX4EQ5rBlCXdnR7IFv6jcDtbcP6gCP
+6pgFL06llmL6wbsx4hus7rBdqqJE5C+OHHpK2EwYP4R1UFoRHDIK3W5ZIf7oZkgp
+rH/NNT80rCVqEWx0MWS7MwyzLZRBosaqanwf1/ct6K77KaumRo2sROxkysDDXnDs
+fxLhoyznGX7LTmO+36tNcqRWZ9S3rpsbIrXTgzWl9S4BWlY=
+=qc6f
+-----END PGP MESSAGE-----
+----------------------------------------------------------------
+
+Visto che è composto da testo semplice, può incollarlo dentro un normale messaggio di posta elettronica e spedirlo a Caio.
+
+Caio riceve il messaggio e lo apre col suo programma di posta preferito, (<<fig_MsgEncPub>>).
+Dal menù di WinPT seleziona menu:Current Window[Decrypt/Verify], ed ottiene il pannello di richiesta password, quella della sua chiave privata (<<fig_DecPasswd>>).
+
+
+[[fig_MsgEncPub]]
+.Il messaggio ricevuto
+image::wpt-pub-01.png[Il messaggio ricevuto]
+
+
+[[fig_DecPasswd]]
+.Occorre inserire la password
+image::wpt-pub-02.png[Occorre inserire la password]
+
+
+Appena sbloccata la chiave privata, Caio riceve per prima cosa la conferma che il messaggio viene proprio da Pinco (<<fig_PincoSign>>), ma Outlook non permette modifiche ai messaggi ricevuti, quindi WinPT si trova con un problema: può decifrare il messaggio ma non sa dove visualizzarlo.
+
+
+[[fig_PincoSign]]
+.La firma di Pinco è valida
+image::wpt-pub-03.png[La firma di Pinco è valida]
+
+
+La questione viene risolta in modo intelligente: dato che molto probabilmente nel rispondere si citerà il messaggio originale, WinPT lo inserisce negli appunti, per permettere di incollare il testo in chiaro in un nuovo messaggio, o di leggerlo direttamente selezionando dal menù di WinPT la voce menu:Clipboard[Edit] (<<fig_Clipboard>>).
+La finestra che appare ha delle funzioni per operazioni aggiuntive, come cifrare o decifrare il contenuto della Clipboard.
+
+
+[[fig_Clipboard]]
+.Il messaggio in chiaro
+image::wpt-pub-04.png[Il messaggio in chiaro]
+
+
+Caio esegue le operazioni presso la sua banca, e poi comunica a Pinco l'avvenuta transazione, con tutti i dati di riepilogo necessari (<<fig_MsgCaio>>).
+Seleziona tutto il testo e lo sposta nella clipboard con la consueta combinazione di tasti kbd:[Ctrl+X], Poi dal menu di WinPT seleziona menu:Clipboard[Sign & Encrypt].
+Gli viene chiesta la destinazione, cioè con quale chiave pubblica deve cifrare il messaggio, in questo caso quella di Pinco (<<fig_WhatKey>>).
+Poi, dato che ha anche richiesto la firma del messaggio, gli viene anche chiesta la password per la sua chiave privata (<<fig_WptPub7>>).
+
+
+[[fig_MsgCaio]]
+.La risposta di Caio
+image::wpt-pub-05.png[La risposta di Caio]
+
+
+[[fig_WhatKey]]
+.Selezione della chiave
+image::wpt-pub-06.png[Selezione della chiave]
+
+
+[[fig_WptPub7]]
+.Per firmare serve la password
+image::wpt-pub-07.png[Per firmare serve la password]
+
+
+Il messaggio cifrato e firmato è ora nella clipboard: basta incollarlo all'interno del messaggio ed è pronto per l'invio, l'aspetto sarà simile a quelli già visti (<<fig_WptPub8>>).
+Se per qualche motivo si selezionasse una chiave pubblica che non ha il livello di certificazione richiesto, viene visualizzato un avvertimento (<<fig_NoTrustKey>>), che consente comunque di proseguire con l'operazione.
+
+
+[[fig_WptPub8]]
+.La risposta di Caio, cifrata e firmata
+image::wpt-pub-08.png[La risposta di Caio, cifrata e firmata]
+
+
+[[fig_NoTrustKey]]
+.Avvertimento per uso di chiave pubblica non fidata
+image::wpt-pub-06a.png[Avvertimento per uso di chiave pubblica non fidata]
+
+
+Vedremo che questo avvertimento è da prendere con la dovuta considerazione.
+In questo messaggio possiamo anche vedere un esempio di quanto dicevamo in precedenza (<<Generazione delle chiavi>>), al momento della generazione delle chiavi: qui la mia chiave pubblica riporta il mio vecchio sito web ed un indirizzo di posta elettronica che non è più il mio principale.
+Ecco una dimostrazione del perché abbiamo tanto insistito sul fatto di scegliere accuratamente identificativi e indirizzi di posta: dopo nei keyserver rimarrà sempre traccia del primo scelto in origine, anche se poi nella gestione GnuPG utilizza la mia identità principale che ora è con un differente indirizzo di posta elettronica.
+
+Torniamo ai nostri due eroi: il messaggio così cifrato e firmato arriva a Pinco, che se dispone di uno dei programmi di posta elettronica abilitati lo può verificare direttamente, altrimenti può salvare il contenuto del messaggio in un file, supponiamo `risposta-caio.txt`, e in un colpo solo verificare la firma di Caio e decifrare il messaggio:
+
+[role=shell,subs="specialchars,quotes"]
+...........................................................................
+[pinco@pclinux ~]$ *gpg --decrypt risposta-caio.txt*
+
+You need a passphrase to unlock the secret key for
+user: "Pinco (uno qualsiasi) <pinco@mail>"
+2048-bit ELG-E key, ID 5B514DF0, created 2007-03-21 (main key ID E4F4B420)
+
+Inserisci la passphrase: _Qui si digita la password_
+
+gpg: encrypted with 2048-bit ELG-E key, ID 5B514DF0, created 2007-03-21
+      "Pinco (uno qualsiasi) <pinco@mail>"
+Caro Pinco,
+ho ricevuto i dati della tua carta, ti includo i riferimenti della
+transazione.
+Grazie!
+
+n. progressivo 10212011301
+del 5/4/2007
+Importo: 1500 euro
+gpg: Signature made gio 05 apr 2007 14:28:53 CEST using DSA key ID 3D739F0D
+gpg: Good signature from "Caio <caio@server>"
+...........................................................................
+
+Per ragioni di sicurezza il messaggio non viene memorizzato da nessuna parte, per cui, se lo vogliamo salvato su un file, possiamo usare la solita opzione `-{wj}-{wj}output` seguita dal nome del file di destinazione, in questo modo:
+
+[role=shell,subs="specialchars,quotes"]
+..................................................................
+[pinco@pclinux ~]$ *gpg --output messaggio-in-chiaro.txt --decrypt risposta-caio.txt*
+..................................................................
+
+Il fatto che sia nella versione Windows che in quella Linux il messaggio in chiaro sia disponibile solo per l'immediata lettura, a meno di diverse indicazioni, è dovuto al ragionamento che se un messaggio è tanto importante da richiedere una cifratura "`forte`", il semplice scriverlo in chiaro su un supporto per definizione insicuro come un normale file è un controsenso.
+
+La cifratura di un file avviene allo stesso modo, usando il File Manager di WinPT.
+Per ragioni anche di spazio, non sempre conviene il formato _ASCII armored_, che aumenta la dimensione dei file cifrati di circa un trenta per cento, anche se durante il processo di cifratura viene anche applicata una forma di compressione per ridurre le dimensioni del file finale.
+Per dare una idea, il file XML da cui viene generato questo testo è ora di circa 228kbyte, una volta cifrato diventa di 68kbyte, se si forza il formato _armored_ diventa di 92kbyte.
+
+
+== La battaglia finale
+
+Il nostro malefico terzetto torna alla carica, e vuole a tutti i costi intercettare il messaggio di Pinco a Caio con i dati della carta di credito.
+Se riescono a metterci le mani sopra il conto in banca di Pinco subirà un tracollo, questo è certo.
+
+Eve da sola non ha alcuna possibilità, almeno nell'immediato futuro.
+I computer quantici sono ancora allo stadio di esperimento nei laboratori, i prototipi ad oggi mostrati non hanno neanche lontamenente la potenza di calcolo necessaria, ed i nostri amici Pinco e Caio potrebbero utilizzare un algoritmo crittografico non attaccabile da tali computer (<<Ma quanto è sicura questa crittografia?>>).
+Per lei l'unica possibilità è un attacco _brute force_ sul messaggio, ma probabilmente si estinguerà prima il Sistema Solare...
+
+Trudy può alterare il messaggio cifrato, il _crittogramma_, per renderlo illeggibile, ed ottenere l'effetto di una linea disturbata.
+Ma per far questo deve avere il controllo di un punto nella catena di comunicazione che non sia aggirabile, per esempio il server di posta di Caio o di Pinco, o la connessione a internet di uno dei due.
+Se ha soltanto il controllo di un server di transito, i due potrebbero accordarsi per usarne uno differente, o il messaggio potrebbe non transitare sempre dallo stesso server.
+Ovviamente stiamo sorvolando sulla _trascurabile_ difficoltà insita nella frase "`avere il controllo di un punto nella catena di comunicazione`"...
+
+Mallory, un individuo veramente pericoloso, potrebbe compromettere un keyserver, il preferito di Pinco, e sostituire la chiave pubblica di Caio con una che sembri identica, ma generata da lui.
+Onestamente dubito che sia possibile generare una chiave con lo stesso ID esadecimale e gli stessi dati, ma se anche lo fosse, questa chiave _non avrà mai le stesse firme di convalida della chiave originale di Caio_, generate con le chiavi private di tutti i suoi amici, quindi non avrebbe neanche la firma di Pinco.
+Nel momento in cui Pinco aggiornasse le sue chiavi pubbliche dal keyserver, questo gli invierebbe la chiave contraffatta da Mallory, ma al momento della cifratura ci sarebbe qualche problema, perché questa chiave non avrebbe il livello di certificazione necessario, ed apparirebbe il pannello visto precedentemente (<<fig_NoTrustKey>>).
+Per Mallory sarebbe tutta fatica sprecata, tranne nella sfortunata ipotesi che Pinco per disattenzione ignori il messaggio ed usi comunque la chiave contraffatta per cifrare il messaggio.
+
+Ma non basta la sola disattenzione di Pinco: Mallory deve ancora intercettare il messaggio diretto a Caio, e valgono le stesse considerazioni viste per Trudy: deve prendere il controllo di uno dei server di posta usati da Pinco e Caio.
+Siamo a due reati commessi, ed ancora non ha messo le mani sul messaggio.
+Finalmente intercetta il messaggio, che deve anche bloccare, perché se giungesse a destinazione sarebbe evidente che qualcosa di strano è accaduto.
+Decifra il messaggio, lo legge, ma così facendo ha perso la firma di Pinco, che _non può imitare_.
+Per non insospettire i due, cifra con la chiave pubblica vera di Caio il messaggio e glielo spedisce, ma deve prima falsificare il mittente, spacciandosi per Pinco, forse la minore delle fatiche.
+
+Caio riceve il messaggio e nota alla decifrazione che non c'è la firma di Pinco.
+Per scrupolo lo chiama e chiede come mai non ha firmato il messaggio.
+Pinco si ricorda benissimo di averlo fatto ed i due si insospettiscono.
+Caio controlla bene il messaggio di posta e vede che non proviene dal server di posta di Pinco, mentre questi si accorge che la chiave di Caio ha un differente fingerprint.
+Mallory è scoperto, ed anche se ha i dati della carta di credito di Pinco, probabilmente questi riuscirà a bloccarla prima che possa usarla.
+
+Tutto questo tenendo presente che Mallory deve contare su tutta una serie di circostanze fortunate:
+
+* Il keyserver deve avere una vulnerabilità sfruttabile per essere compromesso, o avere errori grossolani nella configurazione
+* Il server di posta anche deve avere o una vulnerabilità o errori nella configurazione tali da consentirne la violazione
+* Mallory deve sapere che i due stanno per scambiarsi dati importanti, e quindi in un certo senso deve averli preventivamente spiati in qualche modo
+* Nessuno deve accorgersi che il keyserver è compromesso
+* Nessuno deve accorgersi che il server di posta è compromesso
+* Deve sperare che nessuno si accorga che la chiave di Caio è contraffatta
+
+Per quanto possa essere fortunato ed abile, il castello su cui si basa questo tipo di attacco è estremamente fragile.
+
+Le cose cambiano radicalmente se concentra il suo attacco su un altro fronte, infinitamente più debole e vulnerabile: i computer di Pinco e Caio.
+In questo caso è sufficiente che uno dei due abbia il computer poco sicuro, quale che sia la ragione, ed il gioco è fatto: infilare un malware nel computer, ed usarlo nel modo più economico, intercettando i messaggi _prima_ che siano cifrati o dopo la decifrazione, e leggerli comodamente.
+L'unica salvezza in questo caso è il livello di sicurezza dei computer di Pinco e Caio, e la loro consapevolezza sui rischi in questo campo.
+Se le loro strategie di difesa sono quelle notoriamente improvvisate, acriticamente e meccanicamente applicate di un utente medio, nessun sistema di crittografia e nessun modello di certificazione potrà metterli al riparo dai sempre più agguerriti Mallory in giro per il mondo.
+
+Ma questa, come spesso si suol dire, è un'altra storia...

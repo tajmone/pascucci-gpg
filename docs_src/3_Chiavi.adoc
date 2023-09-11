@@ -1,0 +1,569 @@
+= Gestione delle chiavi
+
+.Un portachiavi ben fornito
+****
+Come utilizzare le chiavi pubbliche, cosa sono e come si usano i keyserver e le regole per fare lo scambio di chiavi in modo corretto e sicuro.
+Seguiremo i nostri amici Caio e Pinco nelle varie operazioni di gestione.
+****
+
+
+== Chiavi e keyserver
+
+In questo momento il _public keychain_ è vuoto, o meglio, contiene soltanto la nostra chiave pubblica.
+Perché sia utilizzabile, occorre per prima cosa distribuirla, in modo che sia disponibile a tutti.
+Per questo motivo esistono i _public keyserver_ su Internet, che mettono a disposizione tutte le chiavi pubbliche che gli utenti hanno volontariamente distribuito.
+Due esempi sono `pgp.mit.edu` e `subkeys.pgp.net`, ma ne esistono innumerevoli altri, ed in WinPT ne sono già elencati alcuni (<<fig_KeySrv1>>).
+La buona notizia è che non è necessario usare tutti lo stesso keyserver, dato che esiste un protocollo di scambio delle chiavi fra server: inviando la vostra ad un singolo keyserver sarà distribuita a tutti gli altri, nel giro di qualche giorno.
+Purtroppo esistono più reti indipendenti di keyserver, ed in qualche caso ci si imbatte in servizi di verifica delle chiavi che hanno poco di affidabile: tutte le chiavi inviate a quel server vengono controfirmate dal server stesso, e per scaricare le chiavi di chiunque bisogna registrarsi, fornendo la propria chiave pubblica.
+Questa procedura crea l'illusione di un sistema di verifica dell'autenticità delle chiavi, che in realtà poco o nulla aggiunge al sistema di sicurezza, mentre in realtà è più dannoso, a mio modesto parere, per la falsa sensazione di prendere chiavi "`verificate`" che invece di certo non hanno nulla, men che meno nel senso inteso dal _Web of Trust_.
+Ma sarà tutto più chiaro dopo che avremo parlato di come si fa lo scambio di chiavi pubbliche.
+
+[[fig_KeySrv1]]
+.La lista dei keyserver in WinPT
+image::wpt-keysrv-01.png[La lista dei keyserver in WinPT]
+
+
+Per pubblicare le nostre chiavi si può procedere in vari modi, anche in funzione del keyserver e delle preferenze personali.
+Si può esportare in un file e inviarla a quei server che mettono a disposizione un'interfaccia web per questo tipo di operazioni, o impartire istruzioni a GnuPG o WinPT per l'invio diretto.
+Per esportarla in un file, i nostri due amici Pinco e Caio possono operare allo stesso modo con il prompt dei comandi:
+
+[role=shell,subs=quotes]
+...................................................................
+[pinco@pclinux ~]$ *gpg --output chiave.asc --armor --export Pinco*
+...................................................................
+
+che genera il file `chiave.asc` con dentro tutto il contenuto della chiave pubblica indicata, in questo caso quella di Pinco, pronto per essere inviato al keyserver.
+
+Se invece intendiamo lasciare il lavoro a GnuPG ed il server lo permette, possiamo inviare la chiave direttamente con il seguente comando:
+
+[role=shell,subs=quotes]
+.....................................................................
+[pinco@pclinux ~]$ *gpg --keyserver subkeys.pgp.net --send-key Pinco*
+gpg: inviata con successo a `subkeys.pgp.net' (status=200)
+.....................................................................
+
+ed il server risponde confermando che la chiave è stata ricevuta.
+
+Con WinPT l'operazione è ancora più semplice: dopo aver lanciato il Key Manager si seleziona la chiave che si vuole esportare e si clicca col tasto destro del mouse.
+Dal menu che compare si seleziona menu:Send to Keyserver[] e si sceglie uno di quelli proposti.
+Viene chiesta conferma (<<fig_KeySrv2>>), ed a operazione avvenuta viene mostrato un avviso (<<fig_KeySrv3>>).
+Non occorre altro, al più dopo qualche giorno possiamo verificate su un differente keyserver l'esistenza della nostra chiave, a conferma che è liberamente disponibile e distribuita sulla rete dei keyserver.
+
+[[fig_KeySrv2]]
+.Richiesta di conferma per invio chiave
+image::wpt-keysrv-02.png[Richiesta di conferma per invio chiave]
+
+
+[[fig_KeySrv3]]
+.Chiave inviata con successo
+image::wpt-keysrv-03.png[Chiave inviata con successo]
+
+
+Nelle figure ho usato la mia chiave GnuPG, per non inviare roba inutile ai server.
+
+Usando invece la riga di comando, per evitare di specificare tutte le volte il keyserver possiamo modificare il file di configurazione di GnuPG.
+Il file si trova nella stessa directory dei file generati al momento di creazione delle chiavi, ad esempio nel _pen drive_, che GnuPG mostra con il comando visto precedentemente nella voce _Home_, e si chiama `gpg.conf`.
+Per selezionare il keyserver preferito, basta aprire il file con un normale text editor (Vim, Emacs, Nano, Joe, GEdit in Linux, Blocco Note in Windows) e controllare se esiste già una riga come questa:
+
+-------------------------------
+keyserver hkp://subkeys.pgp.net
+-------------------------------
+
+senza il carattere ‘#’ davanti.
+Se esiste, possiamo lasciarla invariata oppure sostituire il keyserver con quello preferito.
+In generale, tutte le opzioni di GnuPG usate sulla riga di comando possono essere rese permanenti inserendole in questo file, basta togliere i due trattini davanti all'opzione.
+Ad esempio, sopra si è usata l'opzione `-{wj}-{wj}armor` che indica a GnuPG di creare sempre firme, chiavi e certificati in caratteri ASCII stampabili.
+Per renderla permanente basta aggiungere in un punto qualsiasi del file di configurazione la riga:
+
+-----
+armor
+-----
+
+e dal quel momento in poi non sarà più necessario specificare l'opzione `-{wj}-{wj}armor` in ogni comando.
+Se momentaneamente si vuole annullare l'effetto di queste modifiche al file di configurazione, basta specificare l'opzione voluta sulla riga di comando: per indicare un diverso keyserver lo indichiamo esplicitamente, nel modo solito, e quello indicato nel file di configurazione verrà ignorato.
+Analogamente, per annullare l'effetto della riga `armor` basterà specificare l'opzione `-{wj}-{wj}no{wj}-{wj}armor`, che ha l'effetto opposto di `-{wj}-{wj}armor`.
+In breve, tutte le opzioni date sulla riga di comando hanno la precedenza rispetto a quelle nel file di configurazione.
+
+
+== Scambiarsi le chiavi pubbliche
+
+Nessuno vieta di pubblicare le chiavi su un keyserver, e poi mandare una mail agli amici per indicare quale sia.
+Se però abbiamo compreso l'importanza della chiave pubblica e della corretta associazione col proprietario, sappiamo che in questo modo nessuno sarà certo che quella sia proprio la mia chiave.
+L'unico modo è di incontrare di persona quelli a cui voglio distribuirla e indicarla con certezza, fornendo un foglio su cui sono stampati questi dati:
+
+* Nome e cognome a cui è associata la chiave
+* Indirizzo di posta elettronica con cui viene utilizzata la chiave (anche più di uno)
+* Identificatore della chiave, il numero esadecimale a otto cifre
+* Il _fingerprint_, l'impronta digitale della chiave, un numero esadecimale di 40 cifre generato dalla chiave stessa, quindi assolutamente unico e non riproducibile.
+
+Ottenere questi dati è piuttosto semplice, usando il comando:
+
+[role=shell,subs="specialchars,quotes"]
+..........................................................................
+[pinco@pclinux ~]$ *gpg --fingerprint Pinco*
+pub   1024D/E4F4B420 2007-03-21 [expires: 2037-03-13]
+      Key fingerprint = 9294 2CD5 02E3 7C21 7C19  F6D3 7372 A61F E4F4 B420
+uid                  Pinco (uno qualsiasi) <pinco@mail>
+sub   2048g/5B514DF0 2007-03-21 [expires: 2037-03-13]
+..........................................................................
+
+Oppure sempre tramite il Key Manager di WinPT, selezionare la chiave e dal menù menu:Key[] scegliere menu:Properties[], ottenendo un pannello con tutti i dati richiesti (<<fig_KeyMan05>>).
+
+[[fig_KeyMan05]]
+.WinPT: proprietà di una chiave
+image::wpt-keyman-05.png[WinPT: proprietà di una chiave]
+
+
+Il passo successivo è incontrare la persona con cui si vuole fare lo scambio di chiavi per consegnargli il foglio con tutti i dati.
+Lo scopo è proprio quello di assicurare che la nostra chiave sia proprio quella e non altra, e che siamo proprio chi dichiariamo di essere.
+Secondo il
+https://www.gnupg.org/(it)/documentation/guides.html#sec-1-1[Manuale della riservatezza di GnuPG^]
+è necessario portare con sé ben _due_ documenti di identità, di tipo non facilmente falsificabile, e mostrarli alla persona con cui facciamo lo scambio.
+Potrebbe sembrare paranoia, ma se abbiamo compreso la filosofia di questo modello di certificazione, capiremo che è fondamentale assicurasi dell'identità di chi abbiamo di fronte, e nel contempo provare la nostra.
+Se è una persona che conosciamo bene, come ad esempio nostro fratello, possiamo limitarci ad un solo documento di identità.
+Sto scherzando, ma è assolutamente importante capire che è questa verifica dell'identità che rende forte la Rete della Fiducia.
+
+Non è assolutamente necessario, ed è anzi inutile, portare un foglio con la nostra chiave pubblica stampata per intero, o un supporto con dentro i dati.
+Può essere presa da un keyserver, in modo molto più sicuro ed al riparo da errori di trascrizione, e chi la preleva la verifica confrontando i dati della chiave con quelli forniti al momento dello scambio, soprattutto con il fingerprint, che non è ripetibile, e neppure falsificabile.
+Ancor meno serve un computer, che addirittura viene sconsigliato, per quanto possa sembrare strano.
+La ragione è molto semplice: se qualcuno modifica la propria versione di GnuPG (che, lo ricordiamo, essendo un _open source_ rende disponibile a tutti il proprio sorgente) potrebbe alterare le chiavi al momento dello scambio, e portare attacchi nello stile di Mallory (l'uomo nel mezzo, ricordate?).
+Inoltre è molto più pratico fare senza, anche perché non tutti hanno un computer portatile e per estrarre la chiave pubblica dai file della nostra chiave dovremmo copiarli su un computer non nostro, con tutti i rischi che ne conseguono.
+
+Uno degli elementi costitutivi della Rete della Fiducia è anche la nostra reputazione come "`verificatori`".
+Se siamo superficiali nella verifica dell'identità di quelli con cui scambiamo le chiavi, la nostra firma di convalida varrà poco o nulla, con conseguenze che saranno chiare fra poco.
+Ricordiamo che nella verifica delle firme conta quanta fiducia hanno gli altri nella nostra comprensione del meccanismo e nella nostra accuratezza.
+
+== Convalida delle chiavi
+
+Il nostro amico Pinco è tornato a casa, con il foglietto che gli ha dato Caio.
+Si è accertato che Caio fosse proprio chi diceva di essere, quindi è ragionevolmente sicuro che sia tutto in ordine.
+Accende il computer e preleva la chiave pubblica di Caio dal keyserver usando l'ID della chiave:
+
+[role=shell,subs="specialchars,quotes"]
+......................................................................
+[pinco@pclinux ~]$ *gpg --keyserver pgp.mit.edu --recv-key 0x3d739f0d*
+gpg: key 3D739F0D: public key "Caio <caio@server>" imported
+gpg: Numero totale esaminato: 1
+gpg:              importate: 1
+......................................................................
+
+Potrebbe anche aver ricevuto la chiave pubblica con una mail, in allegato, da Caio stesso.
+In questo caso il comando sarebbe leggermente differente, supponendo che la chiave sia nel file `chiave.asc`:
+
+[role=shell,subs="quotes"]
+............................................
+[pinco@pclinux ~]$ *gpg --import chiave.asc*
+............................................
+
+ma il risultato sarebbe lo stesso.
+Arriva il momento cruciale, in cui Pinco deve verificare la autenticità della chiave, per cui con il comando che segue fa calcolare a GnuPG il fingerprint della chiave importata:
+
+[role=shell,subs="specialchars,quotes"]
+..........................................................................
+[pinco@pclinux ~]$ *gpg --fingerprint Caio*
+pub   1024D/3D739F0D 2007-03-21
+      Key fingerprint = 1A50 D735 18A5 AA5B 2F65  0D76 BB51 4ED0 3D73 9F0D
+uid                  Caio <caio@server>
+sub   2048g/32F7C2EE 2007-03-21
+..........................................................................
+
+Confronta attentamente il fingerprint ottenuto con quello che ha sul foglietto, e verifica che siano identici.
+Ora è ragionevolmente sicuro che nessuno si sia messo in mezzo e che ha importato proprio la chiave di Caio: può procedere con la controfirma.
+Senza questa operazione, se Pinco riceve una mail firmata da Caio, pur sapendo che è proprio la sua firma, riceve da GnuPG un messaggio simile a questo:
+
+[role=shell]
+...........................................................................
+gpg: Signature made mar 27 mar 2007 16:53:16 CEST using DSA key ID 3D739F0D
+gpg: Good signature from "Caio <caio@server>"
+gpg: ATTENZIONE: questa chiave non è certificata con una firma fidata!
+gpg:          Non ci sono indicazioni che la firma appartenga al proprietario.
+Impronta digitale della chiave primaria: 1A50 D735 18A5 AA5B 2F65  0D76 BB51 4ED0 3D73 9F0D
+...........................................................................
+
+Che dice che la firma è corretta, ma nessuno ci assicura che quella chiave appartenga proprio a Caio, cosa che in effetti non è vera, dato che Pinco lo ha verificato di persona.
+Da notare che il fingerprint corrisponde esattamente alla chiave pubblica di Caio.
+
+Per rendere definitiva la verifica, e rendere pubblico il fatto che conosce Caio ed attestare che quella è proprio la sua chiave pubblica, deve fare due distinte operazioni:
+
+* firmare (crittograficamente parlando) la chiave pubblica di Caio
+* inviare al keyserver la chiave pubblica di Caio aggiornata con la sua firma di convalida
+
+La prima operazione si esegue con il comando:
+
+[role=shell,subs="specialchars,quotes"]
+..................................................................
+[pinco@pclinux ~]$ *gpg --sign-key Caio*
+
+pub  1024D/3D739F0D  created: 2007-03-21  expires: mai         usage: SC
+                     trust: sconosciuto   validity: sconosciuto
+sub  2048g/32F7C2EE  created: 2007-03-21  expires: mai         usage: E
+[ unknown] (1). Caio <caio@server>
+
+
+pub  1024D/3D739F0D  created: 2007-03-21  expires: mai         usage: SC
+                     trust: sconosciuto   validity: sconosciuto
+ Impronta digitale della chiave primaria: 1A50 D735 18A5 AA5B 2F65  0D76 BB51 4ED0 3D73 9F0D
+
+     Caio <caio@server>
+
+Are you sure that you want to sign this key with your
+key "Pinco (uno qualsiasi) <pinco@mail>" (E4F4B420)
+
+Really sign? (y/N)  *y*
+
+You need a passphrase to unlock the secret key for
+user: "Pinco (uno qualsiasi) <pinco@mail>"
+1024-bit DSA key, ID E4F4B420, created 2007-03-21
+
+Inserisci la passphrase:
+..................................................................
+
+Dopo la digitazione della password, la procedura termina senza ulteriori messaggi.
+Se la chiave crittografica che andiamo a firmare ha una scadenza, ci viene chiesto se vogliamo che la nostra firma di convalida scada nello stesso momento, cosa che normalmente non pone problemi.
+L'unica possibilità che mi viene in mente è se il proprietario di quella chiave decida successivamente di prorogare la durata della chiave, ed allora la nostra firma di convalida scadrebbe prima.
+Possiamo anche lasciare che la nostra non abbia termine di validità.
+Verifichiamo che la firma sia andata a buon fine:
+
+[role=shell,subs="specialchars,quotes"]
+.....................................................................
+[pinco@pclinux ~]$ *gpg --list-sigs Caio*
+gpg: controllo il trustdb
+gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+gpg: depth: 0  valid:   1  signed:   1  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: depth: 1  valid:   1  signed:   0  trust: 1-, 0q, 0n, 0m, 0f, 0u
+gpg: il prossimoi controllo del trustdb sarà fatto il 2037-03-13
+pub   1024D/3D739F0D 2007-03-21
+uid                  Caio <caio@server>
+sig 3        3D739F0D 2007-03-21  Caio <caio@server>
+sig          E4F4B420 2007-03-29  Pinco (uno qualsiasi) <pinco@mail>
+sub   2048g/32F7C2EE 2007-03-21
+sig          3D739F0D 2007-03-21  Caio <caio@server>
+.....................................................................
+
+// @NOTA: Corretti refusi (@tajmone):
+//        * "appartiene alla proprio a questa convalida" ->
+//          "appartiene proprio a questa convalida"
+//        * "Non riposta nessun numero" -> "Non riporta [...]"
+
+Le prime righe compaiono quando si hanno modifiche tali da chiedere il ricalcolo della catena di certificazioni attraverso la Rete della Fiducia, per esempio proprio alla convalida di una chiave con la propria firma crittografica.
+Vedremo meglio cosa significa più avanti, per ora accettiamola così.
+La riga che inizia con `pub` e quella seguente mostrano i dati della chiave pubblica di Caio, mentre le due righe successive che iniziano per `sig` mostrano rispettivamente la firma che GnuPG appone alle chiavi appena generate, una sorta di autoconvalida, e la firma che Pinco ha appena generato.
+Il "`3`" subito a fianco della prima firma appartiene proprio a questa convalida che esegue GnuPG autofirmando le chiavi al momento della generazione, ed assegnando il massimo valore possibile di validità alla firma stessa.
+La seconda firma appartiene invece a Pinco, ed è quella appena apposta.
+Non riporta nessun numero perché GnuPG, se non diversamente specificato, associa alla firma un _no comment_, cioè niente di speciale da dire su questa firma.
+Se per qualche motivo intendiamo assegnare un livello di certificazione alla chiave che andiamo a convalidare, dobbiamo aggiungere l'opzione `-{wj}-{wj}ask{wj}-{wj}cert{wj}-{wj}level` alla riga di comando.
+In questo caso la sequenza di firma mostra una domanda in più relativa al livello di certificazione:
+
+[role=shell]
+.......................................................................
+Con quanta attenzione hai verificato che la chiave che stai per firmare
+appartiene veramente alla persona indicata sopra?
+Se non sai cosa rispondere digita "0".
+
+   (0) Preferisco non rispondere. (default)
+   (1) Non l'ho controllata per niente.
+   (2) L'ho controllata superficialmente.
+   (3) L'ho controllata molto attentamente.
+
+Your selection? (enter `?' for more information):
+.......................................................................
+
+In effetti questo passo è abbastanza inutile: se non si è in grado di certificare una chiave, cioè non siamo in grado di affermare che quella chiave appartiene al proprietario dichiarato, e che il proprietario dichiarato è proprio chi dice di essere, è praticamente inutile firmare.
+Per questo motivo GnuPG considera valide le firma di convalida che hanno associato un _no comment_.
+E per la stessa ragione non è necessario specificare un livello di certificazione: o siamo sicuri, e firmiamo, o non lo siamo, ed allora non firmiamo e basta, senza mezzi termini.
+
+Anche Caio farà la stessa operazione, usando il Key Manager di WinPT.
+Seleziona il menù menu:Keyserver[] ed ottiene il pannello di interrogazione (<<fig_KeySrv1>>).
+Nella casella in basso digita l'indirizzo di posta di Pinco o l'ID della sua chiave pubblica, seleziona uno dei server dalla lista sopra e preme il pulsante btn:[Search].
+Normalmente riceverà un solo risultato.
+Alcuni server permettono ricerche più generiche, ad esempio col solo cognome, nel qual caso riceverà più risultati e dovrà selezionare quello voluto, verificando l'indirizzo di posta elettronica o l'ID della chiave.
+
+[[fig_KeyMan06]]
+.Risultato di una ricerca su keyserver
+image::wpt-keyman-06.png[Risultato di una ricerca su keyserver]
+
+
+Il risultato che vedete è a seguito della ricerca della mia chiave pubblica, dato che ho evitato di inquinare i keyserver con chiavi di personaggi inventati.
+Alcuni keyserver hanno una interfaccia web che permette ricerche più complete, per esempio anche solo con nome o cognome.
+
+Premendo il pulsante btn:[Receive] la chiave scelta viene scaricata ed aggiunta al nostro keyring e viene notificato il buon esito dell'operazione.
+
+Ci sono anche altre possibilità.
+Una è fare l'importazione da file della chiave, se ad esempio viene inviata per posta elettronica, o scaricata da un sito web.
+Molti keyserver mettono a disposizione anche una interfaccia web per cercare e scaricare chiavi pubbliche, per cui alla fine avremo dei file da importare, selezionando dal menù menu:Key[] la voce menu:Import[].
+Compare il consueto pannello di selezione file, punteremo quello che contiene la chiave e la importiamo.
+Al solito viene mostrato prima un pannello di conferma (<<fig_KeyMan07>>) da cui controllare che sia proprio la chiave voluta, poi un riepilogo delle chiavi importate (<<fig_KeyMan08>>).
+
+[[fig_KeyMan07]]
+.Elenco chiavi pronte per l'importazione
+image::wpt-keyman-07.png[Elenco chiavi pronte per l'importazione]
+
+
+[[fig_KeyMan08]]
+.Riepilogo dell'importazione
+image::wpt-keyman-08.png[Riepilogo dell'importazione]
+
+
+Ora anche Caio ha la chiave pubblica di Pinco e vuole firmarla per convalida.
+Seleziona la chiave pubblica di Pinco e dal menù menu:Key[] sceglie menu:Sign[].
+Gli viene proposto un pannello (<<fig_KeyMan09>>) che contiene gli stessi elementi visti per Pinco, unica differenza è che occorre togliere la spunta alla casella [.guilabel]#Sign local only# prima di firmare, altrimenti la firma varrà solo per Caio.
+Dopo aver inserito la password viene notificato l'esito dell'operazione.
+
+La casella [.guilabel]#Ask for certification level# ha la funzione equivalente all'opzione `-{wj}-{wj}ask{wj}-{wj}cert{wj}-{wj}level` di GnuPG, e come possiamo notare non viene richiesto il livello di certificazione, uniformando il comportamento alla versione a riga di comando di GnuPG.
+
+[[fig_KeyMan09]]
+.Firma di una chiave
+image::wpt-keyman-09.png[Firma di una chiave]
+
+
+Nell'elenco delle chiavi possiamo notare che che sotto la colonna [.guilabel]#Validity# dove c'era _None_, ora c'è _Full_.
+
+Rimane un ultimo passo: notificare ai keyserver, e quindi a tutti quelli che conoscono sia Pinco che Caio, che sono state controfirmate le rispettive chiavi.
+Quindi Pinco con Linux eseguirà questo comando:
+
+[role=shell,subs=quotes]
+.................................................................
+[pinco@pclinux ~]$ *gpg --keyserver pgp.mit.edu --send-keys Caio*
+gpg: inviata con successo a `pgp.mit.edu' (status=200)
+.................................................................
+
+mentre Caio farà un clic col tasto destro del mouse sulla chiave di Pinco e dal menù selezionarà menu:Send to Keyserver[], scegliendone uno dalla lista che compare.
+
+Dopo qualche tempo, variabile da pochi secondi, se usano lo stesso keyserver, a qualche giorno, se ne usano due differenti, i nostri amici potranno aggiornare le proprie chiavi pubbliche scaricando le nuove firme.
+Per Pinco basta dare il comando:
+
+
+[role=shell,subs="specialchars,quotes"]
+.......................................................................
+[pinco@pclinux ~]$ *gpg --refresh-keys Pinco*
+gpg: refreshing 1 key from hkp://subkeys.pgp.net
+gpg: key E4F4B420: "Pinco (uno qualsiasi) <pinco@mail>" 1 new signature
+gpg: Numero totale esaminato: 1
+gpg:            nuove firme: 1
+gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: il prossimoi controllo del trustdb sarà fatto il 2037-03-13
+.......................................................................
+
+Mentre per Caio è sufficiente il solito clic col tasto destro del mouse sulla propria chiave e la scelta della voce menu:Refresh from Keyserver[].
+Come conferma avrà al termine il pannello di riepilogo simile a quello già visto (<<fig_KeyMan08>>) con stavolta indicata una nuova firma.
+
+Tutta questa procedura è possibile anche senza keyserver, esportando le chiavi pubbliche firmate su file e scambiandoli:
+
+* Caio esporta la sua chiave pubblica su un file e lo spedisce a Pinco
+* Pinco importa la chiave di Caio, controllando che il fingerprint e i dati corrispondano
+* Pinco firma la chiave pubblica di Caio
+* La esporta su un file che manda a Caio
+* Caio riceve il file e lo importa, acquisendo la nuova firma di convalida
+
+Caio eseguirà la stessa procedura, importando la chiave pubblica di Pinco, firmandola e rimandandola indietro.
+Senza keyserver è poi compito loro inviare le chiavi aggiornate a tutti i loro amici e conoscenti.
+
+[NOTE]
+.Qui si parla solo di chiavi pubbliche!
+===========================================
+Tutte le operazioni viste di firma, esportazione, invio ai keyserver, importazione, coinvolgono soltanto le chiavi pubbliche.
+Mai e per nessun motivo deve essere esportata la chiave privata, né tanto meno inviato il file che la rappresenta a qualcuno.
+Sui keyserver esistono solo chiavi pubbliche, come specificato dallo standard.
+===========================================
+
+Rimane una ultima parte da esaminare, la cui importanza è fondamentale.
+Pensare di incontrare tutti di persona per fare lo scambio di chiavi è impensabile, e renderebbe assolutamente inutile il meccanismo.
+Come abbiamo detto precedentemente (<<I modelli di certificazione>>), ci si avvale della verifica indiretta di firme provenienti da persone di cui non abbiamo la chiave pubblica direttamente firmata da noi, ossia persone che non conosciamo.
+La parte che ancora non abbiamo visto riguarda proprio il livello di fiducia che riponiamo nelle persone che abbiamo incontrato e con le quali abbiamo scambiato le chiavi pubbliche.
+
+== Fidarsi degli amici
+
+Per spiegare il meccanismo dovremo chiedere la collaborazione di un altro nostro amico, che chiameremo Tizio.
+Tizio conosce Pinco, ma non conosce Caio.
+Inoltre si fida poco di Pinco perché lo giudica un po`' superficiale, ed è convinto che firmi le chiavi pubbliche altrui con troppa facilità.
+
+Supporremo che Tizio sia un utente Linux, e la sua chiave pubblica abbia questi parametri di identificazione:
+
+[role=shell]
+..........................................................................
+pub   1024D/D3241B83 2005-08-19
+      Key fingerprint = 326B 9AC0 6B8C 80A6 5BFC  FFD2 F571 D04F D324 1B83
+uid                  Tizio (uno pignolo) <tizio@posta>
+sub   2048g/331B1726 2005-08-19
+..........................................................................
+
+Tizio ha la chiave pubblica di Pinco, debitamente verificata a controfirmata.
+Per completare la procedura manca solo che definisca _quanto si fida_ di Pinco.
+Non è una fiducia generica, ma sulla comprensione che _secondo Tizio_ Pinco ha del meccanismo del _Web of Trust_ e sulla diligenza che applica alla verifica delle chiavi e delle identità altrui prima di controfirmarle.
+
+Fidarsi, nell'ambito della firma digitale con questo modello di certificazione, significa che si accetta una firma di convalida fatta da un nostro amico come se fosse nostra, cioè come se avessimo incontrato di persona l'altro e verificato noi stessi la chiave e l'identità.
+
+Per tornare ai nostri amici, se Tizio si fida completamente di Pinco, per lui una firma convalidata da Pinco è attendibile a tutti gli effetti.
+Se controlla la chiave di Caio, che non conosce di persona, e vede che è verificata da Pinco, può accettarla per buona.
+Se invece ritiene Pinco poco o per nulla affidabile, la presenza di una firma di Pinco sulla chiave pubblica di Caio per lui non ha nessun valore.
+
+Vediamo i possibili casi, seguendo Tizio mentre assegna il livello di fiducia a Pinco.
+La procedura per cambiare il livello di fiducia sulla persona è la seguente:
+
+[role=shell,subs="specialchars,quotes"]
+........................................................................
+[tizio@miopc ~]$ *gpg --edit pinco*
+
+pub  1024D/E4F4B420  created: 2007-03-21  expires: 2037-03-13  usage: SC
+                     trust: sconosciuto   validity: full
+sub  2048g/5B514DF0  created: 2007-03-21  expires: 2037-03-13  usage: E
+[  full  ] (1). Pinco (uno qualsiasi) <pinco@mail>
+
+Comando>
+........................................................................
+
+Questo modo di chiamare GnuPG mette a disposizione una interfaccia molto semplice ed efficace che permette praticamente tutte le operazioni sulle chiavi sia pubbliche che private.
+Per sapere quali comandi sono accettati basta dare uno sguardo alla pagina del manuale, oppure usare il comando *help*, che mostra un breve elenco con le operazioni possibili.
+
+Prima diamo un breve sguardo alle informazioni presentate.
+Nella prima riga vi sono i dati della chiave pubblica di Pinco, con subito sotto i valori di fiducia (_trust_), al momento sconosciuto visto che Tizio non ha ancora deciso quanto si fida di Pinco, e validità (_validity_), cioè se la chiave è ancora utilizzabile.
+Se ad esempio fosse scaduta ci sarebbe scritto _expired_, o _revoked_ nel caso di chiave revocata tramite certificato.
+Nell'ultima riga fra parentesi quadre c'è il livello di certificazione dato da Tizio alla chiave di Pinco, in questo caso _full_, piena, dato che si sono incontrati di persona e Tizio ha verificato l'identità di Pinco.
+
+Tizio assegna il livello di fiducia a Pinco con il comando *trust*:
+
+[role=shell,subs="specialchars,quotes"]
+..............................................................................
+Comando> *trust*
+pub  1024D/E4F4B420  created: 2007-03-21  expires: 2037-03-13  usage: SC
+                     trust: sconosciuto   validity: full
+sub  2048g/5B514DF0  created: 2007-03-21  expires: 2037-03-13  usage: E
+[  full  ] (1). Pinco (uno qualsiasi) <pinco@mail>
+
+Please decide how far you trust this user to correctly verify other users' keys
+(by looking at passports, checking fingerprints from different sources, etc.)
+
+  1 = I don't know or won't say
+  2 = I do NOT trust
+  3 = I trust marginally
+  4 = I trust fully
+  5 = I trust ultimately
+  m = back to the main menu
+
+Cosa hai deciso?
+..............................................................................
+
+Vengono ripetuti i dati di riepilogo, e le scelte possibili (il _fingerprint_ è quello delle chiavi pubbliche, non l'impronta dei polpastrelli).
+La domanda è chiara: _quanto ti fidi?_
+
+[IMPORTANT]
+.La fiducia è soggettiva e privata
+===========================================
+Non dobbiamo avere remore ad esprimere quello che pensiamo: la fiducia è una informazione privata e soggettiva, e non viene inclusa in nessun caso con i dati che vengono esportati con le chiavi pubbliche di nessuno, quindi non viene pubblicata sui keyserver.
+Solo noi sappiamo quanto fidarci di una persona, e nessuno deve sindacare su questo.
+===========================================
+
+Per capire quanto è privata, il livello di fiducia assegnato ad ogni chiave è salvato nel file separato `trustdb.gpg` il cui contenuto è accessibile solo a noi e nessun altro.
+
+Se si assegna fiducia piena ad una persona, tutte le chiavi pubbliche da lui firmate saranno attendibili per noi, come se avessimo eseguito personalmente la procedura di firma e convalida.
+Quando Tizio assegna fiducia piena a Pinco, la firma di convalida di Pinco sulla chiave di Caio sarà attendibile per Tizio esattamente come se fosse una sua firma.
+Ecco perché la fiducia deve essere intesa in senso molto stretto, e concessa con molta attenzione.
+
+Questo concetto può essere ripetuto a catena per Caio, per cui se un amico di Caio scrive a Tizio, e questo amico ha la sua chiave pubblica firmata da Caio stesso, Tizio può decidere di assegnare fiducia piena a Caio, e considerare attendibili le chiavi da lui controfirmate.
+
+GnuPG possiede un gruppo di regole predefinite per stabilire la validità di una chiave pubblica in base al livello di fiducia assegnato ad ogni persona.
+Le regole sono configurabili a piacere, e quelle predefinite sono:
+
+* Se una chiave è firmata da qualcuno in cui si ha fiducia piena, è attendibile.
+* Se la chiave è firmata da almeno tre persone in cui si ha fiducia parziale, è considerata attendibile.
+* La profondità massima di una catena di firme convalidate con le due regole precedenti è di cinque salti.
+* Dal sesto in poi le firme saranno considerate inattendibili, indipendentemente dal numero e dalla fiducia riposta nelle firme che possiede la chiave in esame.
+
+[IMPORTANT]
+.La costruzione della catena _non è automatica_
+===========================================
+Attenzione: l'attendibilità e la fiducia non sono assegnate automaticamente.
+Siamo sempre noi a decidere, GnuPG si ferma al primo anello della catena a cui non abbiamo esplicitamente assegnato fiducia o attendibilità, e non prende iniziative di alcun tipo.
+Quindi se abbiamo una catena di cinque persone dobbiamo aver assegnato fiducia ad ognuno esplicitamente, ed ognuno deve aver convalidato la chiave del successivo nella catena, altrimenti si interromperà alla prima eccezione.
+===========================================
+
+Cerco di spiegarmi meglio con un esempio: abbiamo la nostra catena di amici in cui Caio conosce Pinco, che conosce Tizio.
+Supponiamo che Tizio a sua volta abbia un amico che scrive un messaggio a Caio, quindi una catena a tre salti:
+
+.....................................
+Caio - Pinco - Tizio - Amico di Tizio
+.....................................
+
+Perché Caio possa considerare attendibile la firma dell'amico di Tizio ogni anello della catena, ogni salto, deve essere certificato.
+Il primo anello, Caio-Pinco, è valido perché Caio ha incontrato Pinco, e quindi la chiave di Pinco per lui è valida.
+Il secondo anello, Pinco-Tizio, richiede che Caio assegni piena fiducia a Pinco, in seguito alla quale la chiave pubblica di Tizio, incontrato da Pinco, è per Caio attendibile.
+L'ultimo anello, Tizio-Amico di Tizio, provocherà da parte di GnuPG una segnalazione di non attendibile, perché Caio deve prima assegnare una fiducia a Tizio, anche se non lo ha mai incontrato di persona, per indicare al programma che si fida delle sue firme.
+Soltanto dopo che Caio avrà espresso un livello di fiducia su Tizio, il programma potrà calcolare se la firma dell'Amico di Tizio è attendibile o meno.
+
+La fiducia che Caio concederà a Tizio non sarà automatica, ma Tizio dovrà in un certo senso conquistarsela, dimostrando con il suo comportamento di essere un "`verificatore`" attendibile.
+Nel mondo reale quasi mai succede che da un giorno all'altro ci scriva un perfetto sconosciuto con il quale è necessario scambiare documenti firmati.
+Succede invece che ci sia un rapporto di lavoro o uno scambio di informazioni particolarmente importanti, per cui dopo un po`' che le persone si conoscono nasce l'esigenza di certificare il mittente.
+Per comprendere a cosa equiparare la firma digitale, possiamo pensarla come appendere la carta d'identità al messaggio.
+Non sono molte le situazioni che necessitino questo livello di attenzione.
+
+Tornando ai valori predefiniti indicati sopra, questi possono non incontrare il nostro favore, ma sono modificabili a piacere per incontrare le nostre esigenze di sicurezza.
+Anche queste modifiche sono assolutamente personali e private, e se decidiamo che una firma per noi non è attendibile, il nostro giudizio è definitivo e inappellabile.
+La chiave di comprensione è che _deve essere attendibile per noi_.
+
+Se ad esempio stiamo intrattenendo corrispondenza per un delicato progetto di lavoro, potremmo decidere di ritenere attendibili le chiavi pubbliche solo fino al secondo livello, e richiedere almeno cinque firme con fiducia parziale per renderne una totalmente attendibile.
+Oppure scegliere di rifiutare tutte le firme con fiducia parziale, quale che sia il livello e il numero.
+Lo facciamo noi, nel nostro computer, sui messaggi indirizzati a noi.
+
+Il sistema è molto flessibile e totalmente personalizzabile, per venire incontro a tutte le esigenze di sicurezza che si possano presentare nell'attività quotidiana.
+Sicuramente il concetto della validità a catena non è facile da digerire e richiede un po`' di pratica, ma non lasciamoci spaventare, è più difficile spiegarlo che applicarlo.
+
+[NOTE]
+.Marginale o parziale?
+===========================================
+La parola _marginal_ utilizzata nella versione inglese è da intendere con il significato di _parziale_, _appena sufficiente_, e viene tradotta con _marginale_ che non è del tutto corrispondente, visto che in italiano significa _poco importante_.
+Quindi non me ne vorrete se nel seguito userò preferibilmente il termine _parziale_ invece del meno corretto _marginale_.
+===========================================
+
+Torniamo al nostro amico Tizio che ha deciso di assegnare fiducia parziale a Pinco:
+
+[role=shell,subs="specialchars,quotes"]
+............................................................................
+Cosa hai deciso? *3*
+
+pub  1024D/E4F4B420  created: 2007-03-21  expires: 2037-03-13  usage: SC
+                     trust: marginal      validity: full
+sub  2048g/5B514DF0  created: 2007-03-21  expires: 2037-03-13  usage: E
+[  full  ] (1). Pinco (uno qualsiasi) <pinco@mail>
+Nota che la validità della chiave indicata non sarà necessariamente corretta
+finchè non eseguirai di nuovo il programma.
+
+Comando> *quit*
+............................................................................
+
+Ora la voce _trust_ riporta _marginal_, indicando appunto che la sua fiducia di Tizio in Pinco è parziale.
+
+
+[IMPORTANT]
+.Fiducia nella persona e fiducia nella chiave
+===========================================
+Ci può essere un po`' di confusione fra questi due aspetti.
+La fiducia nella chiave in realtà andrebbe sempre denominata _attendibilità_ della chiave, e riguarda l'aspetto di appartenenza alla persona che dichiara di usarla.
+Se la chiave pubblica l'abbiamo verificata e firmata di persona, il significato è ovvio, se invece la chiave è verificata tramite la Rete della Fiducia, entra in gioco l'altra fiducia, quella sul livello di comprensione ed attenzione che la persona mette, sempre secondo noi, nella verifica delle chiavi che firma.
+Purtroppo nel parlare comune è difficile separare i due aspetti, l'importante è tener presente che i due tipi di fiducia, pur differenti, sono strettamente collegati fra loro.
+Una cosa che deve essere chiara è che la fiducia nella persona non è generica: posso fidarmi di un mio amico al punto di prestargli metà dei miei risparmi senza formalità, ma essere nel contempo convinto che non capisca quanto sia importante la verifica dell'identità delle persone prima di firmarne le chiavi pubbliche, per cui continuerò a prestargli i miei risparmi, ma nella mia Rete della Fiducia gli assegnerò fiducia parziale, o nessuna fiducia.
+===========================================
+
+Per rendere continua la sua catena di certificazione, Caio farà la stessa operazione nei confronti di tutti i componenti della catena stessa.
+Per assegnare il livello di fiducia con WinPT si richiama il Key Manager, si seleziona con un clic tasto destro del mouse la chiave desiderata e dal menù si seleziona menu:Properties[] ottenendo il pannello corrispondente (<<fig_KeyMan10>>).
+In basso c'è la casella [.guilabel]#Ownertrust# che dovrebbe contenere la parola _unknown_.
+Premendo btn:[Change] e ottiene l'elenco delle scelte (<<fig_KeyMan11>>).
+
+[[fig_KeyMan10]]
+.Le proprietà della chiave di Pinco
+image::wpt-keyman-10.png[Le proprietà della chiave di Pinco]
+
+
+[[fig_KeyMan11]]
+.Il livello di fiducia scelto
+image::wpt-keyman-11.png[Il livello di fiducia scelto]
+
+
+Supponiamo che Caio assegni a Pinco fiducia piena, selezionando _I trust fully_.
+Nel Key Manager ora c'è _Full_ sotto la colonna [.guilabel]#Trust#.
+
+Perché la catena di certificazione, vista da Caio, sia funzionante, non è necessario che nessun altro nella catena assegni un livello di fiducia ai "`vicini`": abbiamo visto che il livello di fiducia è un fatto privato.
+Quello che invece è necessario è che ognuno abbia apposto la firma di convalida della chiave pubblica del "`vicino`", ossia lo abbia incontrato personalmente e verificato la sua identità.
+
+Nella prossima sezione vedremo come si firmano e verificano i messaggi.
+Dopo aver familiarizzato un po`' con le procedure, simuleremo varie situazioni che coinvolgono i nostri amici, e certamente arriveremo a comprendere meglio il meccanismo.

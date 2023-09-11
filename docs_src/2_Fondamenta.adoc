@@ -1,0 +1,774 @@
+= Gettiamo le fondamenta
+
+.Caio e Pinco
+****
+Entriamo nel vivo con la presentazione del software open source per la crittografia e la firma digitale.
+Per non essere da meno, anche noi useremo personaggi di fantasia, tenendo a mente che ogni dato è inventato e ogni riferimento a persone realmente esistenti è casuale e non voluto.
+Ci riferiremo a Pinco, utente Linux, e Caio, che usa Windows per il suo lavoro di tutti i giorni, ed ai loro amici e conoscenti.
+****
+
+
+== GNU Privacy Guard
+
+Il principale strumento è
+https://www.gnupg.org[GnuPG^],
+che possiamo scaricare in versioni pronte per l'uso con quasi tutti i sistemi operativi più diffusi.
+
+Esclusa l'installazione, che per Windows verrà trattata separatamente, nel seguito tutte le operazioni fatte usando direttamente GnuPG dalla shell di Linux potranno essere applicate in maniera assolutamente identica usando il prompt dei comandi di Windows, la sintassi e le procedure sono le stesse.
+Potrebbe succedere che in Windows l'eseguibile di GnuPG non sia nel percorso di ricerca delle applicazioni specificato in `PATH`: basta aggiungerlo, o altrimenti ci sposteremo dentro la directory in cui è installato il file eseguibile `gpg.exe` ed eseguiremo tutte le operazioni da lì.
+
+[NOTE]
+.Riga di comando per Linux, GUI per Windows
+===========================================
+Per mia comodità riporterò sempre la versione Linux negli esempi pratici.
+Per Windows, in aggiunta, mostrerò come eseguire le stesse operazioni da una interfaccia grafica che semplifica di parecchio la vita a chi non si sente a suo agio con il prompt.
+
+Per rendere utilizzabile e relativamente sicuro il nostro sistema di crittografia e firma digitale, occorre però considerare bene alcuni aspetti, volti a massimizzare sia la praticità che la certezza che nessuno possa facilmente appropriarsi della nostra identità digitale.
+===========================================
+
+
+== Mantenere un segreto
+
+La chiave privata, i dati di convalida della firma nostra e delle firme dei nostri amici e conoscenti sono conservati su normali file, in forma cifrata.
+Questi file sono uno dei punti deboli di tutto il nostro sistema crittografico, il segreto supremo, e occorre che siano protetti al massimo contro il pericolo che qualcuno possa trafugarli.
+Inoltre, dato che per definizione la chiave privata è unica e non ripetibile, la sua eventuale perdita è irrecuperabile.
+A parte queste considerazioni, i file in cui GnuPG memorizza tutti i dati, anche se cifrati, sono normali file che possono essere copiati e sottoposti a backup, e GnuPG non trova differenze a lavorare sugli originali o su copie.
+Non solo, i file che usa la versione Windows sono identici e compatibili con la versione Linux e viceversa, quindi chi come me usa entrambi i sistemi operativi può usare gli stessi file.
+Detto questo dobbiamo far coincidere esigenze contrastanti:
+
+* Protezione dei file da accessi non autorizzati, quindi conservazione in un unico posto, al sicuro.
+Se qualcuno riesce ad averne una copia, può applicare un tentativo di decifrazione _brute force_ sulla password che usiamo per l'accesso alla chiave privata, operazione che come abbiamo visto può essere infinitamente più agevole che trovare la chiave stessa.
+Inoltre potrebbe alterare in qualche modo i nostri file, per esempio inserendo la sua chiave privata al posto della nostra.
+Le possibilità di far danni sono limitate solo dalla fantasia, e gli esseri umani ne hanno molta in questi casi.
+* Protezione dalla eventuale perdita o cancellazione dei file, quindi copie di riserva in più supporti, conservati in posti differenti.
+Se a causa di un guasto hardware perdo i file di lavoro e non ho copie, ho perso la mia chiave privata, oltre a molto altro che la rende valida e credibile, e non posso recuperarla in alcun modo.
+Se ne genero una nuova, pur usando gli stessi dati, sarà per forza di cose differente dalla precedente, anche perché altrimenti chiunque potrebbe generare una chiave identica alla mia.
+
+Queste due esigenze, in aperto contrasto fra loro, possono però essere parzialmente conciliate con qualche accorgimento, che inoltre rende più fruibile il sistema di firma e crittografia.
+
+Dopo aver provato diverse alternative, quella che trovo più comoda, anche per chi usa più computer, o anche per chi usa il notebook, è un disco USB removibile, che sia un normale hard disk o un disco _flash_ a stato solido, la familiare "`chiavetta USB`", molto di moda in questo periodo.
+Dato che il volume di dati è veramente minimo, nel mio caso sono meno di cento kilobyte, l'ideale potrebbe essere un piccolo _pen drive_ USB da 128Mbyte, da portare insieme alle chiavi di casa o dell'auto.
+
+
+[NOTE]
+.I database di GnuPG tendono a crescere
+===========================================
+Usando il nostro sistema di sicurezza conosceremo nuove persone e le aggiungeremo, sotto forma di chiavi pubbliche, alla nostra Rete della Fiducia, ed i file di lavoro crescono.
+Alle chiavi vengono aggiunti dati, le chiavi vengono revocate, scadono, cambiano di livello di affidabilità, e il nostro database ne deve tenere conto.
+Non saremo quindi troppo spartani con lo spazio riservato al nostro sistema di crittografia.
+===========================================
+
+Si istruisce GnuPG ad usare il percorso giusto per i file di lavoro, in questo caso il disco removibile.
+Se ci dimentichiamo di connetterlo al momento della firma, GnuPG avvisa soltanto che non riesce a trovare quello che serve, senza fare danni.
+Poi, periodicamente, se ne fa un backup su un supporto a piacere, cifrando i file con un algoritmo simmetrico, con le procedure che vedremo più avanti, confondendoli insieme a migliaia di altri e con un nome insospettabile, in modo che se il supporto dovesse essere smarrito o sottratto, chiunque lo ritrovi non sia attirato dal contenuto.
+In questo modo sul computer non è conservato nulla, e se mai dovesse essere smarrito o trafugato, dentro non ci sarebbero dati così importanti.
+
+L'elemento critico diviene il disco USB, che va protetto da eventuali letture o manomissioni da parte di estranei.
+Se vogliamo esagerare, potremmo usare strumenti come la cifratura del filesystem, permessa sia dalle ultime versioni di Windows che da Linux.
+In questo modo abbiamo una doppia sicurezza: la password di accesso alla chiave privata di GnuPG, e la password per accedere al filesystem cifrato, che ovviamente saranno differenti.
+La password del filesystem potrebbe anche essere memorizzata nel computer, per evitare di doverla digitare ad ogni connessione del disco USB, e dare comunque un po`' di sicurezza in più, perché chi volesse trafugare la nostra chiave privata deve avere due cose: il computer e il disco USB.
+Chi trafugasse il solo disco dovrebbe affrontare _due diverse decifrazioni_, una del filesystem ed una dei file di GnuPG, mentre chi trafugasse il computer avrebbe la password del filesystem ma non avrebbe il filesystem.
+Ma siamo veramente paranoici...
+
+Per quanto riguarda la frequenza dei backup, può essere ridotta se si usa un _keyserver_ in Internet, perché le modifiche alle firme sono registrate anche sul server.
+Però se si perde il _database della fiducia_, cioè il database dove viene memorizzato il grado di fiducia che abbiamo assegnato ad ogni persona con cui abbiamo avuto contatti, il tempo necessario per ricostruirlo non è trascurabile, per motivi che saranno evidenti nel seguito, per cui un backup ad ogni modifica è caldamente consigliato.
+
+Quindi, ricapitolando:
+
+* Dati di GnuPG memorizzati su un supporto removibile comodo da trasportare.
+* Backup dei dati su supporto a scelta.
+* Uso di filesystem cifrati (opzionale).
+
+Usando un disco USB removibile, possiamo affermare di rispettare uno dei paradigmi della sicurezza, obbedendo ai requisiti per la cosiddetta _autenticazione forte_, che impone che siano usati almeno due differenti metodi per identificarmi, ad esempio scelti fra i seguenti:
+
+* _Qualcosa che so_: una password, il PIN del Bancomat
+* _Qualcosa che ho_: una smartcard, il disco USB, la carta Bancomat
+* _Qualcosa che sono_: una mia caratteristica, il mio DNA, la mia faccia, le mie impronte digitali
+
+Per poter usare le mie chiavi crittografiche ho bisogno di una cosa che ho (il disco USB) e di una che so (la password di accesso di GnuPG), ed ecco soddisfatte le premesse.
+
+
+== Installazione in Linux
+
+La parte GnuPG è disponibile su tutte le principali distribuzioni Linux e spesso viene già installata, per verificare mediante firma digitale tutti gli aggiornamenti che vengono rilasciati per il sistema operativo e le applicazioni.
+Quindi chi usa Linux può passare immediatamente alla generazione delle chiavi, previa verifica dell'installazione di GnuPG.
+Se per qualche motivo non fosse installato, basta far riferimento alla documentazione della nostra distribuzione, dove troveremo come reperire ed installare i programmi aggiuntivi necessari.
+
+Unica cosa da fare, se vogliamo utilizzare un disco USB, è di creare un link simbolico nella home directory che punti al _mount point_ del disco USB.
+La logica è questa: GnuPG usa una directory con nome `.gnupg` nella home dell'utente in cui memorizza i file di lavoro.
+Dato che vogliamo mettere questi file sul disco USB, che supponiamo venga montato in automatico in `/media/usb`, basta creare un link simbolico nella nostra home con il nome `.gnupg` che punti ad una directory scelta da noi dentro il disco USB, ad esempio `/media/usb/.miafirma`.
+Occorrono due semplici operazioni, la prima è la creazione della directory nel disco USB, con il comando:
+
+[role=shell,subs=quotes]
+...............................................
+[pinco@pclinux ~]$ *mkdir /media/usb/.miafirma*
+...............................................
+
+
+seguito dalla creazione del link simbolico per GnuPG con il seguente comando, lanciato dalla vostra home directory:
+
+[role=shell,subs=quotes]
+......................................................
+[pinco@pclinux ~]$ *ln -s /media/usb/.miafirma .gnupg*
+......................................................
+
+
+Esiste un altro metodo per indicare a GnuPG dove sono i file delle chiavi: modificare il file di configurazione.
+Ha però uno svantaggio: se dimentichiamo di inserire il disco USB vengono creati da zero nuovi file, vuoti, senza restituire un errore.
+Se invece si usa il link simbolico, GnuPG tenta di creare i file vuoti se non viene infilato il disco USB, ma non ci riesce per via della presenza del link stesso e ci avverte con un errore, che possiamo prendere come un "`ricordati di inserire il disco`".
+
+Le versione che ho usato in Linux è quella presente nella distribuzione Fedora Core 6, per la precisione la 1.4.7 e successive.
+Per quello che riguarda questa guida non c'è alcuna differenza fra questa versione ed altre precedenti o successive presenti nelle varie distribuzioni Linux, al netto di piccole differenze nei messaggi o in alcune opzioni usate raramente.
+
+
+== Installazione in Windows
+
+Come abbiamo detto, GnuPG può essere usato allo stesso modo sia da Windows che da Linux, tramite la riga di comando.
+Teniamo conto però di due aspetti: l'uso dal riga di comando in Windows è piuttosto scomodo; non tutti sono a loro agio con la riga di comando.
+
+Per fortuna esistono programmi di interfaccia verso GnuPG che, oltre a fare da tramite per le operazioni di gestione delle chiavi, rendono immensamente più semplici le operazioni di routine, come cifrare un messaggio o verificare una firma.
+
+Dal sito di GnuPG è possibile avere una idea delle varie possibilità, ma a mio avviso la migliore è
+https://www.gpg4win.org[GPG4Win^],
+che permette in un colpo solo di installare:
+
+* GnuPG, il cuore di tutto il sistema di crittografia.
+* WinPT (Windows Privacy Tray), una applicazione che permette la gestione completa di firma, crittografia e chiavi pubbliche e private, con una integrazione semplice ed efficace con il desktop.
+* GPA (GnuPG Privacy Assistant), un differente programma per la gestione delle chiavi, con la possibilità di cifrare e firmare file.
+Semplicemente una differente interfaccia per le funzioni di GnuPG.
+Lo stesso programma è disponibile per Linux.
+* GPGol (GnuPG OutLook plugin), per firmare e cifrare i messaggi di posta elettronica.
+Funziona solo con Outlook 2003, e non funziona con Outlook Express.
+* GPGee (GnuPG Explorer Extension), per mettere le funzioni di GnuPG nel menù di contesto di Windows Explorer.
+* Sylpheed-claws, un programma completo di posta elettronica, integrato con GnuPG.
+
+Di questi, non installeremo GPGol (il plugin per OutLook, vedremo che WinPT ci permette di fare le stesse cose), GPA (ridondante rispetto a WinPT, oltre ad avere quanche funzione in meno), GPGee che funziona solo con diritti amministrativi (inoltre lo sviluppo è abbandonato dal 2005) e Sylpheed-claws (semplicemente perché obbliga a cambiare totalmente il programma per la posta elettronica).
+Il pacchetto è disponibile in due versioni, di cui prenderemo quella _lite_, che semplicemente non include i manuali, solo in tedesco.
+
+
+[NOTE]
+.Perché questo e non altri?
+===========================================
+È certamente vero che esistono parecchie alternative al programma scelto, cioé WinPT (GnuPG deve esserci per forza).
+Ma tutte richiedono un cambio del modo di gestione della posta elettronica.
+In Linux esiste Evolution, il gestore di posta, calendario, contatti ed altro, molto simile ad OutLook; per chi usa Thunderbird esiste l'estensione Enigmail che aggiunge l'integrazione con GnuPG, sia per Windows che per Linux; Sylpheed Claws è un gestore di posta elettronica sia per Windows che per Linux, integrato con GnuPG.
+Ma la maggior parte di noi usa altro, o si è abituata ad usare interfacce webmail, oppure usa programmi per la posta elettronica che non prevedono l'integrazione con GnuPG, e quindi l'uso di un altro programma, solo per aggiungere firma elettronica e crittografia, impone una migrazione ed un cambio di abitudini che per la mia modesta esperienza è solo fonte di disagi, a fronte di un modesto vantaggio per le poche volte che utilizzeremo una firma digitale o un messaggio cifrato.
+E vedremo che le occasioni non sono poi così frequenti.
+===========================================
+
+Nel seguito vedremo come si usano i programmi che abbiamo scelto, ora ci dedicheremo all'installazione, che richiede i diritti di amministrazione.
+
+[NOTE]
+.GnuPG si installa anche senza diritti amministrativi
+===========================================
+Se non abbiamo diritti amministrativi sul computer in cui vogliamo utilizzare GnuPG, potremmo installare solo GnuPG, ma non possiamo installarlo da GPG4Win, e non avremo più le comodità messe a disposizione dalle varie interfacce di gestione, occorrerà utilizzare la riga di comando come in Linux.
+===========================================
+
+Al lancio dell'installazione, se non abbiamo diritti da amministratore, subito dopo la presentazione (<<fig_Inst1>>) e la licenza (<<fig_Inst2>>), viene appunto mostrato un messaggio (<<fig_Inst2warn>>) che avverte di questo vincolo e termina il programma senza fare altro.
+Se invece stiamo usando un utente con i diritti giusti, l'installazione prosegue senza mostrare il messaggio.
+
+[[fig_Inst1]]
+.La presentazione
+image::g4w-inst-01.png[La presentazione]
+
+
+[[fig_Inst2]]
+.Licenza GNU GPL
+image::g4w-inst-02.png[Licenza GNU GPL]
+
+
+[[fig_Inst2warn]]
+.Solo un amministratore può...
+image::g4w-inst-02-warn.png[Solo un amministratore può...]
+
+
+Al momento in cui scrivo le versioni disponibili sono quelle nelle immagini.
+Certamente, nel frattempo saranno disponibili nuove versioni, ma fondamentalmente avranno le stesse funzioni di base, almeno quelle utilizzate in questa guida e le differenze non influiscono in nessuna delle procedure indicate nel seguito.
+
+L'installazione prosegue con la scelta dei componenti da installare (<<fig_Inst3>>).
+Come abbiamo già accennato, installeremo solo alcuni componenti.
+
+
+[[fig_Inst3]]
+.Scelta dei componenti
+image::g4w-inst-03.png[Scelta dei componenti]
+
+
+Arriva il momento di scegliere la posizione dei programmi (<<fig_Inst4>>), dove mettere icone di avvio (<<fig_Inst5>>) e la voce nel menù Start (<<fig_Inst6>>): possiamo lasciare i valori predefiniti.
+
+
+[[fig_Inst4]]
+.Directory di destinazione per le applicazioni
+image::g4w-inst-04.png[Directory di destinazione per le applicazioni]
+
+
+[[fig_Inst5]]
+.Dove vogliamo le icone di avvio
+image::g4w-inst-05.png[Dove vogliamo le icone di avvio]
+
+
+[[fig_Inst6]]
+.Posizione in Start Menù
+image::g4w-inst-06.png[Posizione in Start Menù]
+
+
+Appena confermata la posizione nel menù Start parte l'installazione (<<fig_Inst7>>), che termina qualche minuto dopo (<<fig_Inst8>>)
+
+
+[[fig_Inst7]]
+.L'installazione vera e propria
+image::g4w-inst-07.png[L'installazione vera e propria]
+
+
+[[fig_Inst8]]
+.Fine della fase di copia dei file
+image::g4w-inst-08.png[Fine della fase di copia dei file]
+
+
+L'ultimo pannello conferma il successo dell'installazione (<<fig_Inst9>>).
+
+
+[[fig_Inst9]]
+.Fine installazione
+image::g4w-inst-09.png[Fine installazione]
+
+
+Per ora non lanciamo nulla, anche se possiamo verificare la presenza nel menù Start dei programmi appena installati.
+
+Verificato che tutto sia in ordine, possiamo passare ad una delle fasi cruciali, con la generazione dei nostri segreti più preziosi: le chiavi crittografiche.
+
+
+== Generazione delle chiavi
+
+Per prima cosa verifichiamo se nel nostro computer è installato GnuPG, e come sia configurato.
+Queste informazioni si ottengono digitando il comando che segue:
+
+[role=shell,subs=quotes]
+.............................................................
+[pinco@pclinux ~]$ *gpg --version*
+gpg (GnuPG) 1.4.7
+Copyright (C) 2006 Free Software Foundation, Inc.
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions. See the file COPYING for details.
+
+Home: ~/.gnupg
+Algoritmi gestiti:
+A chiave pubblica: RSA, RSA-E, RSA-S, ELG-E, DSA
+Cifrari: 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH
+Hash: MD5, SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+Compressione: Non compresso, ZIP, ZLIB, BZIP2
+.............................................................
+
+I dati che ci interessano sono la `Home`, che ci dice dove saranno memorizzati i file delle chiavi pubbliche e private, qui indicata quella predefinita in Linux, in Windows sarà quella che indicheremo al momento di generare le chiavi, come vedremo più avanti; l'elenco degli algoritmi conosciuti sia per la cifratura a chiave pubblica che per quella simmetrica, elencati sotto la voce `Cifrari`; degni di nota anche gli algoritmi di hash e quelli di compressione.
+Questo elenco è utile se si prevede di scambiare dati con altre persone che hanno versioni di software differenti: dobbiamo avere gli stessi algoritmi, altrimenti uno dei due non riuscirà a fare qualcuna delle operazioni tipiche.
+Se per esempio si usa un algoritmo di hash che ha solo uno dei due, l'altro non potrà verificare la firma.
+
+Riporto la procedura in versione Linux, usata dal nostro amico Pinco, ma, come spiegato sopra, le operazioni eseguite da Caio in Windows con il prompt dei comandi sono assolutamente identiche:
+
+[role=shell,subs="verbatim,callouts,quotes"]
+............................................................................
+[pinco@pclinux ~]$ *gpg --gen-key*
+gpg: ATTENZIONE: si sta usando memoria insicura! <1>
+gpg: visitare http://www.gnupg.org/faq.html per ulteriori informazioni
+gpg: directory `/home/pinco/.gnupg' created <2>
+gpg: creato un nuovo file di configurazione `/home/pinco/.gnupg/gpg.conf'
+gpg: ATTENZIONE: le opzioni in `/home/pinco/.gnupg/gpg.conf' non sono ancora
+attive durante questa esecuzione del programma
+gpg: portachiavi `/home/pinco/.gnupg/secring.gpg' creato <3>
+gpg: portachiavi `/home/pinco/.gnupg/pubring.gpg' creato
+Per favore scegli che tipo di chiave vuoi:
+   (1) DSA e ElGamal (default) <4>
+   (2) DSA (firma solo)
+   (4) RSA (firma solo)
+Cosa scegli?
+............................................................................
+
+Ci vengono date parecchie informazioni, tutte importanti, come è buona abitudine quando si usa un software per applicazioni che coinvolgono la sicurezza:
+
+
+<1> In qualche caso GnuPG non può usare un particolare meccanismo per impedire che la memoria impiegata per la generazione delle chiavi possa essere paginata su disco, col risultato (molto improbabile ma non impossibile) che una chiave possa essere scritta _prima di essere cifrata_ sul disco nell'area di swap.
+È una eventualità piuttosto remota, ma per correttezza si viene avvertiti.
+Per maggiori informazioni possiamo riferirci al link che diligentemente GnuPG suggerisce, che contiene notizie più particolareggiate su questo messaggio.
+<2> Questi messaggi indicano che si sta creando la base per il funzionamento di GnuPG, la directory di lavoro ed il file di configurazione generale.
+Si può interrompere l'esecuzione in questo momento e cambiare le opzioni nel file `gpg.conf`, per adeguarle alle nostre esigenze.
+Al successivo avvio di GnuPG verranno utilizzate le nuove impostazioni.
+Di solito non serve, i valori predefiniti sono validi per la maggior parte dei casi.
+<3> Questi file conterranno le chiavi private e pubbliche.
+Sono chiamati _keyring_, portachiavi, perché in effetti di questo si tratta.
+Il file denominato `secring.gpg` conterrà le chiavi private per la firma e per la crittografia.
+Il file con nome `pubring.gpg` conterrà le chiavi pubbliche nostre e dei nostri amici e conoscenti.
+Insieme al file `trustdb.gpg`, contenente il dabasase della fiducia, di cui parleremo successivamente, costituiscono il cuore del sistema crittografico, e sono i file che vanno protetti ad ogni costo da letture e manomissioni.
+<4> La lista può variare, in funzione degli algoritmi di cifratura disponibili nella versione di GnuPG usata.
+Il valore predefinito va bene per la maggior parte delle esigenze, dato che permette sia la firma che la cifratura di dati generici.
+
+
+Scegliamo a piacere, ricordando però che optare per la generazione di una coppia di chiavi soltanto per la firma implica non poter cifrare, a meno di generare successivamente una coppia di chiavi aggiuntiva, quindi tanto vale generarla subito.
+
+[role=shell,subs=quotes]
+..................................................
+Cosa scegli? *1*
+DSA keypair will have 1024 bits.
+ELG-E keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048)
+..................................................
+
+Supponendo di scegliere quello che ci propone GnuPG, la coppia di chiavi DSA per la firma sarà di 1024 bit, mentre per la coppia di chiavi per la cifratura di dati e messaggi viene richiesta la dimensione preferita.
+Il valore proposto è adeguato, per cui risponderemo solo con un kbd:[Invio]:
+
+[role=shell,subs="specialchars,macros"]
+............................................................
+What keysize do you want? (2048) kbd:[Invio]
+La dimensione richiesta della chiave è 2048 bit
+Per favore specifica per quanto tempo la chiave sarà valida.
+         0 = la chiave non scadrà
+      <n>  = la chiave scadrà dopo n giorni
+      <n>w = la chiave scadrà dopo n settimane
+      <n>m = la chiave scadrà dopo n mesi
+      <n>y = la chiave scadrà dopo n anni
+Chiave valida per? (0)
+............................................................
+
+La domanda successiva riguarda la scadenza della chiave.
+Possiamo specificare un tempo limite o lasciare il valore proposto, che rende le chiavi senza scadenza.
+Il valore si può cambiare successivamente, e comunque di solito si sceglie di non dare nessuna scadenza, visto che la nostra firma non dovrebbe cambiare nel tempo.
+Oppure, in casi particolari, possiamo scegliere un valore di comodo in previsione del tempo massimo per cui useremo queste chiavi.
+
+Supponiamo di scegliere trenta anni, un valore adeguato visto anche che probabilmente per quell'epoca le firme digitali saranno tutt'altra cosa.
+
+[role=shell,subs=quotes]
+...........................................
+Chiave valida per? (0) *30y*
+Key expires at ven 13 mar 2037 14:25:47 CET
+Is this correct? (y/N) *y*
+...........................................
+
+La scadenza si può cambiare anche successivamente, se non è quella voluta.
+Viene adesso il momento di associare le chiavi generate alla nostra identità ed al nostro indirizzo di posta elettronica.
+
+[role=shell,subs="specialchars,quotes"]
+............................................................................
+You need a user ID to identify your key; the software constructs the user ID
+from the Real Name, Comment and Email Address in this form:
+    "Heinrich Heine (Der Dichter) <heinrichh@duesseldorf.de>"
+
+Nome e Cognome: *Pinco*
+Indirizzo di Email: *pinco@mail*
+Commento: *uno qualsiasi*
+Hai selezionato questo User Id:
+    "Pinco (uno qualsiasi) <pinco@mail>"
+
+Modifica (N)ome, (C)ommento, (E)mail oppure (O)kay/(Q)uit?
+............................................................................
+
+È importante che i dati siano corretti e che l'indirizzo di e-mail sia quello che verrà utilizzato con questa chiave, perché, pur potendo modificarli in seguito, se la nostra chiave pubblica viene divulgata con dati errati, il problema è che ci vorrà tempo e pazienza prima che i dati corretti vengano recepiti da tutti quelli che ci conoscono.
+Molti programmi di posta elettronica selezionano automaticamente la chiave da usare in funzione del destinatario, cioè dell'indirizzo a cui viene inviato il messaggio.
+Se qui ne dichiariamo uno e poi abitualmente ne usiamo un altro, pur potendolo aggiungere all'elenco delle nostre identità, se chi ci vuole mandare un messaggio cifrato usa un programma di posta che integra le funzioni di GnuPG deve indicare ogni volta quale chiave usare, perché il programma userà la prima identità, quella con cui viene generata la prima coppia di chiavi.
+Se è tutto in ordine possiamo rispondere:
+
+[role=shell,subs=quotes]
+..............................................................
+Modifica (N)ome, (C)ommento, (E)mail oppure (O)kay/(Q)uit? *o*
+..............................................................
+
+Siamo ad uno dei momenti cruciali.
+La scelta della password di accesso alle chiavi private.
+
+[CAUTION]
+.Scelta della password
+===========================================
+Ricordando quanto detto (cfr. <<Ma quanto è sicura questa crittografia?>>), è fondamentale che non sia una password banale, che non sia usata anche per altre cose, che abbia una lunghezza adeguata e sia costituita da lettere, numeri e simboli, insomma una password degna di questo nome.
+Eviteremo parole di senso compiuto, nomi propri, combinazioni di date di nascita, numeri di telefono e targhe di auto con nomi di amici e parenti.
+E ancora, non useremo la stessa della posta elettronica, né il PIN del bancomat, né altre invenzioni dello stesso tipo.
+===========================================
+
+Tanto per dare un'idea delle "`idee geniali`" nella scelta di una password il numero più usato è ‘1’ messo in coda, come pure il simbolo più usato è il punto, per separare il numero dal resto: `password.1` è l'esempio classico, ben conosciuto da chiunque voglia scoprire una password, che compie i primi tentativi proprio in questa direzione.
+L'importanza di questa password è anche sottolineata dal fatto che GnuPG la chiama _passphrase_, proprio per indicare che una singola parola è troppo debole.
+
+[role=shell,subs=quotes]
+.............................................................
+Ti serve una passphrase per proteggere la tua chiave segreta.
+
+Inserisci la passphrase: _inseriamo la password_
+Ripeti la passphrase: _la inseriamo di nuovo per verifica_
+.............................................................
+
+Questa è l'ultima domanda, da qui in avanti il processo si compie in automatico, fino alla generazione di tutti i dati necessari.
+Durante il processo di generazione delle chiavi viene stampata a video una sequenza di caratteri per mostrare l'andamento.
+Se abbiamo scelto di generare sia una coppia di chiavi di firma che una coppia per la cifratura, come avviene se prendiamo le scelte predefinite, i messaggi mostrati sotto vengono ripetuti due volte, una per ogni coppia di chiavi:
+
+[role=shell]
+...............................................................................
+Dobbiamo generare un mucchio di byte casuali. È una buona idea eseguire
+qualche altra azione (scrivere sulla tastiera, muovere il mouse, usare i
+dischi) durante la generazione dei numeri primi; questo da al generatore di
+numeri casuali migliori possibilità di raccogliere abbastanza entropia.
+++++++++++.+++++.++++++++++....++++++++++.+++++...+++++.+++++.++++++++++.++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.+++++++++++++++++++
++>+++++..+++++>+++++...........+++++^^^
+...............................................................................
+
+Il tempo di generazione delle chiavi è fortemente dipendente sia dalla lunghezza della chiave che dalla velocità del vostro computer.
+Da notare che viene usato estensivamente il generatore di numeri casuali, ed è il motivo per cui ogni chiave è unica, e non è possibile generarne un'altra identica.
+Al termine viene fatto il riepilogo delle chiavi generate e della scadenza:
+
+[role=shell]
+..............................................................................
+gpg: /home/pinco/.gnupg/trustdb.gpg: creato il trustdb <1>
+gpg: key E4F4B420 marked as ultimately trusted
+chiavi pubbliche e segrete create e firmate. <2>
+
+gpg: controllo il trustdb
+gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model
+gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
+gpg: il prossimoi controllo del trustdb sarà fatto il 2037-03-13
+pub   1024D/E4F4B420 2007-03-21 [expires: 2037-03-13] <3>
+      Key fingerprint = 9294 2CD5 02E3 7C21 7C19  F6D3 7372 A61F E4F4 B420 <4>
+uid                  Pinco (uno qualsiasi) <pinco@mail>
+sub   2048g/5B514DF0 2007-03-21 [expires: 2037-03-13] <5>
+..............................................................................
+
+Gli elementi in questi ultimi messaggi sono caratteristici e li rivedremo spesso durante l'uso di GnuPG.
+
+
+<1> Il _trustdb_ è il database della fiducia, il cui contenuto è la base del _Web of Trust_.
+<2> L'armamentario delle chiavi è a questo punto generato, cifrato e memorizzato.
+<3> Questa riga informa sulla chiave pubblica principale, da 1024 bit, con algoritmo DSA, identificativo (_key id_) E4F4B420, creata il 21 marzo 2007 da Pinco, con il commento e l'indirizzo di posta elettronica scelti.
+Questi dati compariranno sempre insieme alla nostra chiave pubblica, quindi conviene sceglierli con cura.
+<4> Il _fingerprint_, l'impronta digitale della chiave, è unico e strettamente associato con la chiave stessa.
+Se qualcuno manomettesse una delle nostre chiavi il fingerprint sarebbe differente, avvertendoci della manomissione.
+<5> Questa è la chiave generata con algoritmo _ElGamal_, ed utilizzata per la cifratura, dato che la chiave DSA può essere usata solo per generare firme, non per cifrare.
+La scadenza è identica alla chiave di firma, e può essere cambiata.
+Si possono generare più chiavi ElGamal per la cifratura, ma non ha molto senso tenerne più di una, dato che se qualcuno deve mandarci un messaggio cifrato si troverebbe nell'imbarazzo di quale chiave usare per la cifratura, e noi dovremmo individuare quale usare per decifrare.
+È più pratico assegnare una scadenza inferiore rispetto alla chiave di firma DSA e cambiarla più spesso.
+
+
+== Generazione delle chiavi con WinPT
+
+Se non vogliamo utilizzare il prompt dei comandi, possiamo sfruttare la comoda interfaccia messa a disposizione da WinPT.
+Valgono comunque tutte le considerazioni e gli avvertimenti dati fino ad ora (cfr. <<Generazione delle chiavi>>).
+
+Verifichiamo di aver inserito il supporto su cui memorizzare i dati di GnuPG, come spiegato sopra, prima di avviare WinPT.
+Per comodità supporremo di usare un disco USB flash, la ben nota _chiavetta USB_ o _pen drive_.
+Alla partenza riceviamo un avviso (<<fig_KeyGen01>>) che appare quando non esistono ancora i file delle chiavi pubbliche o private.
+Se invece abbiamo dimenticato di inserire il _pen drive_ USB dove sono i file di GnuPG appare un avviso differente (<<fig_KeyGen1a>>).
+
+
+[[fig_KeyGen01]]
+.Avviso all'avvio di WinPT
+image::wpt-keygen-01.png[Avviso all'avvio di WinPT]
+
+
+[[fig_KeyGen1a]]
+.Ci siamo dimenticati di inserire il _pen drive_
+image::wpt-keygen-01a.png[Ci siamo dimenticati di inserire il pen drive]
+
+
+In questo momento ci troviamo nella prima situazione, non avendo ancora generato le nostre chiavi.
+Se invece siamo nella seconda situazione, dopo aver risposto btn:[No], compariranno una serie di messaggi di errore e di richieste di indicare la directory con i file delle chiavi: basta annullare tutte le operazioni per uscire da WinPT, ed una volta inserito il disco nella presa USB basta riavviare il programma.
+
+Dobbiamo generare le chiavi, ma le impostazioni predefinite di WinPT posizioneranno i file delle chiavi crittografiche in una directory sotto la gerarchia `Documenti`, nel disco principale del computer.
+Dato che invece vogliamo posizionare i file sul _pen drive_ USB, ignoriamo questo pannello, senza chiuderlo, e facciamo clic col tasto destro sulla piccola icona a forma di chiave vicino l'orologio in basso a destra del desktop.
+Dal menù che appare (<<fig_KeyGen02>>) scegliamo menu:Preferences[GPG] per accedere al pannello di configurazione di GnuPG (<<fig_KeyGen2a>>).
+
+
+[[fig_KeyGen02]]
+.Per accedere alle impostazioni generali
+image::wpt-keygen-02.png[Per accedere alle impostazioni generali]
+
+
+[[fig_KeyGen2a]]
+.Le preferenze di GnuPG
+image::wpt-keygen-02a.png[Le preferenze di GnuPG]
+
+
+Mettiamo il segno di spunta nella casella [.guilabel]#Overwrite default settings#, sbloccando le due caselle di testo in alto.
+Nella prima dobbiamo indicare quale sia la posizione dei file, cioè la lettera del disco corrispondente al _pen drive_.
+Basta premere il pulsante di fianco alla casella [.guilabel]#GnuPG home directory#, ed otteniamo il classico pannello di scelta (<<fig_KeyGen2b>>) da cui selezioneremo il drive.
+
+
+[[fig_KeyGen2b]]
+.Scelta della posizione delle chiavi
+image::wpt-keygen-02b.png[Scelta della posizione delle chiavi]
+
+
+In questo esempio (<<fig_KeyGen2c>>) abbiamo selezionato il drive `E:\`, e le chiavi saranno memorizzate nella radice del disco.
+Possiamo anche creare una directory e piazzarci dentro le chiavi, se vogliamo condividere lo spazio con altri dati.
+
+
+[[fig_KeyGen2c]]
+.Abbiamo scelto il drive E:
+image::wpt-keygen-02c.png[Abbiamo scelto il drive E:]
+
+
+Confermate le scelte con il pulsante btn:[OK], possiamo tornare al pannello rimasto aperto (<<fig_KeyGen01>>), nel quale premiamo il pulsante btn:[Cancel], poi lanciamo di nuovo WinPT dal menù Start, per fare in modo che tenga conto delle scelte fatte.
+Questa volta al pannello controlleremo che sia selezionata la voce [.guilabel]#Generate a GnuPG key pair#, poi premiamo btn:[OK].
+
+Nel pannello che appare (<<fig_KeyGen2d>>) dobbiamo mettere il nostro nome, cognome e indirizzo di posta elettronica che vogliamo siano associati alle chiavi crittografiche.
+I dati qui inseriti devono essere quelli veri, che utilizzeremo effettivamente con la nostra identità digitale, per intenderci, quelli scritti nei nostri documenti di identità (a parte l'indirizzo di posta elettronica).
+
+
+[[fig_KeyGen2d]]
+.L'identità digitale
+image::wpt-keygen-02d.png[L'identità digitale]
+
+
+Qui facciamo le veci del nostro amico Pinco, che mette il suo nome e il suo indirizzo di posta elettronica, entrambi inventati.
+
+Alla pressione del tasto btn:[OK], ci viene chiesta la password di protezione delle chiavi crittografiche (<<fig_KeyGen03>>), e se ne scegliamo una troppo corta veniamo avvisati (<<fig_KeyGen04>>).
+Di seguito ci viene chiesta di nuovo la stessa password (<<fig_KeyGen05>>), per impedire che errori di digitazione rendano poi inaccessibili le chiavi crittografiche.
+
+
+[[fig_KeyGen03]]
+.La password di protezione
+image::wpt-keygen-03.png[La password di protezione]
+
+
+[[fig_KeyGen04]]
+.Avvertimento per password troppo semplice
+image::wpt-keygen-04.png[Avvertimento per password troppo semplice]
+
+
+[[fig_KeyGen05]]
+.Ripetere la password per sicurezza
+image::wpt-keygen-05.png[Ripetere la password per sicurezza]
+
+
+Con WinPT non viene chiesto di assegnare una scadenza alle chiavi, né il commento da associarvi.
+Le chiavi sono create senza scadenza, e in ogni caso vedremo che questi parametri sono modificabili in qualsiasi momento, dopo la generazione delle chiavi, sia usando la riga di comando che WinPT.
+
+Appena inserita la seconda volta la password parte la generazione delle chiavi (<<fig_KeyGen06>>), che termina dopo qualche tempo (<<fig_KeyGen07>>).
+
+
+[[fig_KeyGen06]]
+.Generazione delle chiavi
+image::wpt-keygen-06.png[Generazione delle chiavi]
+
+
+[[fig_KeyGen07]]
+.Le chiavi sono pronte
+image::wpt-keygen-07.png[Le chiavi sono pronte]
+
+
+Al passo successivo viene proposto di fare un backup delle chiavi appena generate (<<fig_KeyGen08>>), cosa caldamente consigliata.
+
+
+[[fig_KeyGen08]]
+.Suggerimento relativo al backup
+image::wpt-keygen-08.png[Suggerimento relativo al backup]
+
+
+Vengono salvati due file, quelli realmente importanti al momento: il file delle chiavi pubbliche (<<fig_KeyGen09>>) e quello delle chiavi private (<<fig_KeyGen10>>).
+
+
+[[fig_KeyGen09]]
+.Salvataggio delle chiavi pubbliche
+image::wpt-keygen-09.png[Salvataggio delle chiavi pubbliche]
+
+
+
+[[fig_KeyGen10]]
+.Salvataggio delle chiavi private
+image::wpt-keygen-10.png[Salvataggio delle chiavi private]
+
+
+Chiaramente questi due file sono preziosissimi, specialmente quello delle chiavi private, e non vanno lasciati incustoditi.
+Al più presto ne faremo un backup da qualche parte, tenendone solo due copie: quella di lavoro, sul _pen drive_, e quella di riserva, ad esempio masterizzata in un CD-R, da riporre in un luogo sicuro.
+Ne avremo bisogno solo in caso di perdita dei dati dal _pen drive_.
+
+Avviando di nuovo WinPT, non otterremo ora nessuna finestra, ma una icona nella barra delle applicazioni (<<fig_KeyGen11>>): cliccandovi col tasto destro del mouse si ottiene un menù con le funzioni principali (<<fig_KeyGen02>>).
+Quella che ci interessa al momento è la prima, menu:Key Manager[].
+Scegliendola si ottiene l'interfaccia per la gestione delle chiavi (<<fig_KeyMan01>>).
+
+
+[[fig_KeyGen11]]
+.Icona nella barra dei menù
+image::wpt-keygen-11.png[Icona nella barra dei menù]
+
+
+[[fig_KeyMan01]]
+.Il Key Manager di WinPT
+image::wpt-keyman-01.png[Il Key Manager di WinPT]
+
+
+C'è elencata una sola chiave, dato che il nostro amico Pinco non ha ancora avuto contatti con il mondo esterno.
+
+
+== Il certificato di revoca
+
+Purtroppo è successo: qualcuno ha rubato il disco USB con dentro le nostre chiavi crittografiche.
+In teoria è solo questione di tempo prima che violi la password ed inizi a firmare mail e documenti a nome nostro.
+Cosa fare?
+
+Anche questa possibilità è prevista.
+Al momento della generazione delle chiavi, o anche successivamente, è possibile creare un _certificato di revoca_, una chiave speciale che consente di revocare la validità della nostra chiave segreta principale dalla data in cui viene usato il certificato.
+Questo significa che tutti i messaggi ed i documenti firmati prima della data di revoca continuano a valere, ma ogni messaggio o documento firmato dopo la revoca non ha più alcun valore.
+
+
+[WARNING]
+.Attenzione alle date
+===========================================
+Come spiegato in un capitolo successivo (cfr. <<Aiutare Mallory a far danni>>), la data può essere contraffatta, per cui il discorso fatto sopra vale per le firme verificate _prima_ che sia usato il certificato di revoca.
+Se ho verificato un mese fa la firma ad un messaggio, ed oggi ne viene revocata la validità, _per me_ quel messaggio rimane autentico.
+Ovvio che se mi arriva un messaggio che risulta essere firmato un mese dopo la revoca di validità della chiave, la cosa è piuttosto sospetta.
+===========================================
+
+Dato che la chiave di cifratura è convalidata dalla firma digitale apposta su di essa al momento della generazione, anche il valore di tutte le sotto-chiavi di cifratura decade nello stesso momento in cui la chiave di firma viene revocata.
+
+Il comando da impartire è il seguente:
+
+[role=shell,subs="specialchars,quotes"]
+..................................................................
+[pinco@pclinux ~]$ *gpg --output revoca.asc --gen-revoke Pinco*
+
+sec  1024D/E4F4B420 2007-03-21 Pinco (uno qualsiasi) <pinco@mail>
+
+Create a revocation certificate for this key? (y/N)
+..................................................................
+
+L'opzione `--output` è seguita da un nome di file dove GnuPG deve scrivere il certificato di revoca, in questo caso `revoca.asc`.
+In tutti i comandi che non coinvolgono operazioni su file, GnuPG manda il prodotto delle operazioni a video, cosa poco utile in situazioni come questa, in cui i dati generati hanno un impiego particolare.
+
+Per indicare a quale chiave ci si riferisce si può usare il nome o il cognome, l'indirizzo di posta elettronica o meglio l'ID della chiave, il numero esadecimale a otto cifre che la identifica.
+
+[TIP]
+.Formato dell'ID
+===========================================
+GnuPG comprende perfettamente che intendete un numero esadecimale, anche se non usiamo nessuna notazione particolare, ma non con tutti i programmi e servizi è così.
+In qualche caso, soprattutto con servizi su Internet, per far capire che intendiamo un ID di chiave occorre farlo precedere dalla stringa "`0x`", il numero zero seguito dalla lettera "`x`" minuscola, ad esempio: `0xE4F4B420`
+===========================================
+
+Occorre indicare la chiave, dato che ci troviamo di fronte ad una azione potenzialmente distruttiva.
+Possiamo generare certificati di revoca solo per le chiavi che ci appartengono, cioè di cui abbiamo sia la parte pubblica che privata.
+
+[role=shell,subs=quotes]
+.......................................................
+Create a revocation certificate for this key? (y/N) *y*
+Per favore scegli il motivo della revoca:
+  0 = Nessuna ragione specificata
+  1 = Questa chiave è stata compromessa
+  2 = Questa chiave è stata sostituita
+  3 = La chiave non è più usata
+  Q = Cancella
+(Probabilmente volevi scegliere 1)
+Cosa hai deciso?
+.......................................................
+
+I motivi elencati non sono messi a caso, ognuno è legato ad un diverso comportamento di GnuPG quando trova una chiave revocata.
+Nel nostro caso, la scelta sarà la numero 1: utilizzeremo questo certificato solo in seguito ad un furto di dati che coinvolga i file di GnuPG:
+
+[role=shell,subs=quotes]
+..................................................................
+Cosa hai deciso? *1*
+Inserisci una descrizione opzionale; terminala con una riga vuota:
+>
+..................................................................
+
+Si può scrivere quello che si vuole, anche nulla:
+
+[role=shell,subs=quotes]
+......................................................
+> *Chiave compromessa, non usare!*
+>
+Motivo della revoca: Questa chiave è stata compromessa
+Chiave compromessa, non usare!
+Is this okay? (y/N)
+......................................................
+
+Supponendo che tutto sia a posto diamo risposta affermativa:
+
+[role=shell,subs="specialchars,quotes"]
+..................................................
+Is this okay? (y/N) *y*
+
+You need a passphrase to unlock the secret key for
+user: "Pinco (uno qualsiasi) <pinco@mail>"
+1024-bit DSA key, ID E4F4B420, created 2007-03-21
+
+Inserisci la passphrase:
+..................................................
+
+Al solito occorre la password, cosa abbastanza ovvia, altrimenti chiunque può generare un certificato di revoca dal nostro computer e annullare la validità delle nostre chiavi:
+
+[role=shell]
+..............................................................................
+Forzato l'output con armatura ASCII.
+Creato un certificato di revoca.
+
+Per favore spostalo su un media che puoi nascondere; se l'uomo nel mezzo
+riuscirà ad accedere a questo certificato potrà usarlo per rendere
+inutilizzabile la tua chiave. È una buona idea stamparlo ed archiviarlo,
+nel caso il media diventasse illeggibile. Ma fai attenzione: il sistema di
+stampa della tua macchina potrebbe immagazzinare i dati e renderli disponibili
+ad altri!
+..............................................................................
+
+Quest'ultimo messaggio nella versione inglese diventa:
+
+[role=shell]
+..........................................................................
+Please move it to a medium which you can hide away; if Mallory gets
+access to this certificate he can use it to make your key unusable.
+It is smart to print this certificate and store it away, just in case
+your media become unreadable.  But have some caution:  The print system of
+your machine might store the data and make it available to others!
+..........................................................................
+
+Il Mallory citato qui è proprio quello di cui abbiamo parlato nella parte teorica (<<sez_personaggi>>), il personaggio che agisce come _man in the middle_.
+
+Ci troviamo ora un file dal nome `revoca.asc` il cui contenuto è simile a questo:
+
+----------------------------------------------------------------
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: A revocation certificate should follow
+
+iGcEIBECACcFAkYCr3kgHQJDaGlhdmUgY29tcHJvbWVzc2EsIG5vbiB1c2FyZSEA
+CgkQc3KmH+T0tCAsywCfRYAvJzR0hU/RsmmDzgOlaIuyv0EAnjCVteultuelWm/Z
+cFMsui7XdL5T
+=GYEU
+-----END PGP PUBLIC KEY BLOCK-----
+----------------------------------------------------------------
+
+// @NOTA: Corretto refuso (@tajmone):
+//        "Essendo in effetti sono pochi dati" -> ("sono" -> "solo")
+
+[CAUTION]
+.L'uso del certificato di revoca è definitivo
+===========================================
+Se viene inviato ad un keyserver la nostra chiave verrà immediatamente resa inutilizzabile, senza alcuna possibilità di annullare la revoca, quindi conserviamolo in un posto sicuro.
+Essendo in effetti solo pochi dati, si può usare il suggerimento dato, ossia stamparlo e archiviarlo.
+===========================================
+
+Non è una buona idea conservarlo sullo stesso supporto dove teniamo i file della nostra chiavi crittografiche: se il disco USB viene rubato, in un colpo solo il ladro ottiene sia la chiave privata, e una volta scoperta la password di protezione inizia a firmare a nostro nome messaggi e documenti, sia il certificato di revoca, che non è cifrato ed è immediatamente utilizzabile per essere inviato ad un _keyserver_, annullando la validità di tutte le firme da quel momento in poi, anche se sono del legittimo proprietario.
+
+Se in più, nonostante gli avvertimenti, non abbiamo copia di backup dei file dei _keychain_, non avremo neanche la possibilità di generarne uno nuovo.
+La nostre chiavi saranno perdute per sempre, o peggio in mano ad altri: _non avremo altra possibilità che avvertire di persona tutti gli amici e conoscenti che le nostre chiavi non sono più valide_.
+
+Caio può comodamente usare l'interfaccia messa a disposizione da WinPT, chiamando il Key manager (<<fig_KeyMan01>>), e dopo aver selezionato la sua chiave, dal menù menu:Key[] scegliere la voce menu:Revoke Cert[] (<<fig_KeyMan02>>).
+
+
+[[fig_KeyMan02]]
+.Generare un certificato di revoca da WinPT
+image::wpt-keyman-02.png[Generare un certificato di revoca da WinPT]
+
+
+Compare un pannello in cui sono presenti tutti gli elementi già visti: la ragione per la revoca, un commento opzionale, la password ed il file in cui vogliamo salvare il certificato (<<fig_KeyMan03>>).
+
+
+[[fig_KeyMan03]]
+.Dati per il certificato di revoca
+image::wpt-keyman-03.png[Dati per il certificato di revoca]
+
+
+Terminata la generazione, pressoché istantanea, un messaggio ci avverte di conservare con cura il certificato appena creato (<<fig_KeyMan04>>).
+
+
+[[fig_KeyMan04]]
+.Il certificato non deve cadere in mani sbagliate
+image::wpt-keyman-04.png[Il certificato non deve cadere in mani sbagliate]
+
+
+Come possiamo vedere non è nulla di terribilmente complicato, una volta capiti i motivi.
+Ora abbiamo una contromisura anche per rispondere a questa situazione, remota ma sempre possibile.
+

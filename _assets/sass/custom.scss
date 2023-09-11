@@ -1,0 +1,37 @@
+
+// *****************************************************************************
+// Shell/CMD
+// *****************************************************************************
+div.literalblock.shell pre {
+  background-color: #0c0c0c; // black
+  color: #ccc; // grey
+
+  strong {
+    color: #f2f2f2 !important; // white
+}
+
+  em {
+    color: #3a96dd !important; // blue
+    font-weight: bold;
+}
+  // AsciiDoc Callouts
+  .conum {
+    background: #fff945 !important; // yellow
+    color: #0c0c0c !important; 		// black
+  }
+}
+
+// *****************************************************************************
+// Menu Entries
+// *****************************************************************************
+.menuseq b:not(.caret), .menuref, .guilabel {
+    color: #c00; // red
+}
+
+// *****************************************************************************
+// New Edition Sidebar
+// *****************************************************************************
+div.sidebarblock.newedition {
+  border-color: adjust-color(#f1f9f9, $lightness: -20%, $saturation: -20%);
+  background-color: #f1f9f9;
+}

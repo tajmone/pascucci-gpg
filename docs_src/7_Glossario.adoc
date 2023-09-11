@@ -1,0 +1,183 @@
+[glossary]
+= Glossario
+
+[glossary]
+[[gl_arpanet,Arpanet]]
+Arpanet::
+Acronimo per _Advanced Research Projects Agency NETwork_, progetto nato nel 1969, che collegava quattro istituti universitari americani fra loro, con lo scopo di facilitare la circolazione delle informazioni.
++
+Per maggiori informazioni:
+https://it.wikipedia.org/wiki/ARPAnet[^]
+
+[[gl_attacco,attacco informatico]]
+attacco informatico::
+La sequenza di operazioni compiute da chi tenta di scardinare le difese di un sistema informatico.
+Gli scopi di un attacco possono essere i più disparati: dall'accesso non autorizzato al semplice danneggiamento, al furto di dati o risorse.
++
+Vedi Anche <<gl_intrusione>>.
+
+[[gl_attori,Attori in crittografia]]
+Attori in crittografia::
+Per meglio spiegare le procedure usate in crittografia, si ricorre a personaggi inventati il cui nome in qualche modo richiama il ruolo: Alice, Bob, Carol, Dave e così via in ordine alfabetico, sono i vari personaggi che partecipano alla comunicazione, mentre Eve è la spiona, dall'inglese _eavesdropper_, quella che può guardare ma non può modificare, Trudy, dall'inglese _intruder_, può modificare solo i messaggi in transito, mentre Mallory, l'uomo nel mezzo, in inglese _man in the middle_, può invece utilizzare tutta la gamma possibile di attacchi.
++
+Per maggiori informazioni (in inglese):
+https://en.wikipedia.org/wiki/Alice_and_Bob[https://en.wikipedia.org/wiki/Characters_in_cryptography^]
+
+[[gl_backup,backup]]
+backup::
+Letteralmente "`copia di riserva`".
+Una copia di un oggetto o di dati da usare in caso di indisponibilità dell'oggetto principale
+
+[[gl_qcomputer,Computer quantici]]
+Computer quantici::
+Computer che per l'elaborazione non usano il sistema binario, quindi a due stati definiti uno e zero, ma sfruttano la sovrapposizione di stati, ben nota in fisica quantistica.
+È stato dimostrato matematicamente che un computer costruito in questo modo potrebbe spezzare un codice crittografico come RSA in pochissimo tempo, dell'ordine dei minuti, quando oggi i tempi sono calcolabili in migliaia di volte l'età dell'universo anche usando tutti i computer del pianeta in parallelo.
++
+Alcuni laboratori hanno annunciato la costruzione di elementi basilari per la produzione di computer quantici, e qualcuno ha mostrato un prototipo, ma l'applicazione su larga scala è piuttosto lontana nel tempo.
++
+Per maggiori informazioni (in inglese):
+https://en.wikipedia.org/wiki/Quantum_computing[https://en.wikipedia.org/wiki/Quantum_computer^]
+
+[[gl_dsa,DSA]]
+DSA (Digital Signature Algorithm)::
+Algoritmo crittografico asimmetrico a chiave pubblica, basato sul logaritmo discreto, molto simile all'algoritmo _ElGamal_.
+
+[[gl_elgamal,ElGamal]]
+ElGamal::
+Algoritmo crittografico asimmetrico a chiave pubblica, basato sul logaritmo discreto, una funzione matematica il cui calcolo è praticamente della stessa complessità della scomposizione in fattori.
++
+Per maggiori dettagli (in inglese):
+https://en.wikipedia.org/wiki/ElGamal_encryption[https://en.wikipedia.org/wiki/Elgamal^]
+
+[[gl_enigma,Enigma]]
+Enigma::
+Macchina elettromeccanica per la cifratura polialfabetica.
+Costruita in varie versioni a partire dal 1923, in versione commerciale, mentre due versioni speciali furono usate dall'esercito tedesco fin dal 1926.
+La cifratura generata da questo dispositivo fu spezzata grazie al contributo fondamentale di Alan Turing, padre dell'informatica, e del suo "`Colossus`", forse il primo esemplare di computer della storia.
++
+Per maggiori informazioni:
+https://it.wikipedia.org/wiki/Enigma_%28crittografia%29[^]
+
+[[gl_firmael,firma elettronica]]
+firma elettronica::
+Secondo la legge italiana, un qualsiasi dato identificativo che indichi il mittente di una qualsiasi comunicazione o documento.
+Secondo questa definizione anche il semplice nome e cognome digitati in coda ad una e-mail sono da considerare a tutti gli effetti una firma elettronica.
+
+[[gl_firmadig,firma digitale]]
+firma digitale::
+Secondo la legge italiana, un sistema di riconoscimento univoco e non falsificabile del mittente di un messaggio o dell'autore di un documento, generato con sistemi crittografici o assimilabili.
+
+[[gl_firmacert,firma digitale certificata]]
+firma digitale certificata::
+A differenza dei precedenti tipi di firma, in questo caso la legge italiana è molto chiara, e considera soltanto le firme digitali basate sul modello ad Autorità di Certificazione, a cui assegna il valore di firma autografa.
+Il modello a Rete della Fiducia non è nominato, ma nel testo della legge non si esclude a priori la validità degli altri tipi di firma, e lascia la valutazione al giudice, nell'eventuale contenzioso.
+
+[[gl_gpl,GPL]]
+GPL::
+Acronimo di _General Public License_, licenza di uso e distribuzione software che ha la caratteristica di permettere la modifica a piacimento del sorgente, pur mantenendo la proprietà intellettuale, a patto che le modifiche, se pubblicate, siano messe a disposizione con la stessa licenza.
+Dettagli maggiori sul sito web della Free Software Foundation:
+https://www.fsf.org[^].
++
+Vedi Anche <<gl_opensource>>.
+
+[[gl_hash,hash]]
+hash::
+Funzione matematica usata per trasformare una sequenza di dati di lunghezza qualsiasi in un numero di lunghezza prefissata e limitata.
+Una semplice funzione di hash può essere il resto della divisione per 256 della somma di tutti i valori in codice ASCII dei caratteri di un testo: il risultato sarà sempre compreso fra 0 e 255, indipendentemente dalla lunghezza del testo.
++
+In crittografia, le funzioni di hash devono possedere alcune caratteristiche particolari per essere utilizzabili: ad esempio non deve essere facile costruire sequenze di dati tali da restituire lo stesso hash.
++
+Per maggiori informazioni:
+https://it.wikipedia.org/wiki/Funzione_di_hash[https://it.wikipedia.org/wiki/Hash^]
+
+[[gl_intrusione,intrusione]]
+intrusione::
+La sequenza di azioni che porta qualcuno ad accedere dati e risorse in un computer o un canale di comunicazione su cui non ha titolo né diritto alcuno, sia operando direttamente che per il tramite di strumenti automatizzati.
+
+[[gl_kerko,principio di Kerckhoffs]]
+Kerckhoffs, principio di::
+_Un sistema crittografico deve essere inviolabile anche se tutti i dettagli del suo funzionamento sono pubblici_.
+Tradotto, significa che, pur usando un algoritmo di pubblico dominio, se la chiave usata per cifrare è segreta deve essere comunque impossibile spezzare il codice.
++
+Per maggiori dettagli (in inglese):
+https://en.wikipedia.org/wiki/Kerckhoffs%27s_principle[^]
+
+[[gl_keylogger,keylogger]]
+keylogger::
+Strumento che registra tutti i tasti premuti sulla tastiera di un computer durante il normale uso.
+Ne esistono sia sotto forma di programmi che di piccoli apparecchi inseriti sul cavo della tastiera.
+Lo scopo è di spiare cosa viene digitato da una persona, per scopi che spesso, se non sempre, sono illegali.
++
+Per maggiori informazioni:
+https://it.wikipedia.org/wiki/Keylogger[^].
+
+[[gl_keyparty,Key signing party]]
+Key signing party::
+Evento organizzato spesso in corrispondenza con convegni e simposi dove i partecipanti possono verificare e certificare le chiavi pubbliche fra loro, secondo una procedura ben definita.
++
+Per maggiori dettagli:
+https://it.wikipedia.org/wiki/Key_signing_party[^] e
+https://www.gnupg.org/(it)/howtos/it/gpg-party.html[^]
+
+[[gl_malware,malware]]
+malware::
+Neologismo derivato dalla contrazione di _Malicious Software_, nato per indicare in generale tutti i tipi di software malevolo.
+Data la continua espansione e diversificazione della categoria, si è coniato questo termine omnicomprensivo.
+
+[[gl_manmiddle,Man in the middle]]
+Man in the middle::
+Letteralmente "`uomo nel mezzo`".
+In crittografia, ed in generale nella sicurezza dell'informazione, un tipo di attaccante attivo che si intromette nella comunicazione fra due entità, senza limitarsi alle trasmissioni in corso, ma originandone di nuove, dirottando il traffico, riutilizzando le precedenti o spacciandosi per uno dei due.
+Spesso questo tipo di attacco è molto difficile da individuare.
++
+Per maggiori informazioni (in inglese):
+https://en.wikipedia.org/wiki/Man-in-the-middle_attack[https://en.wikipedia.org/wiki/Man_in_the_middle^]
+
+[[gl_mondopiccolo,teoria del mondo piccolo]]
+Mondo piccolo, teoria del::
+Senza entrare nei dettagli, applicando questa teoria alle reti sociali di esseri umani (amici, amici degli amici, ecc.), si dimostra che per andare da un essere umano vivente sul pianeta ad un qualsiasi altro a caso, sono sufficienti sei salti, detti _sei gradi di separazione_.
++
+Per maggiori dettagli:
+https://it.wikipedia.org/wiki/Teoria_del_mondo_piccolo[^]
+
+[[gl_mount,montare]]
+montare::
+Riferito a Linux, ed in generale a Unix, è l'operazione di collegare uno spazio di memorizzazione in un punto, denominato _mount point_, dell'albero delle directory.
+Per maggiori dettagli vedere il manuale del comando *mount* e del file `fstab`.
+
+[[gl_opensource,open source]]
+open source::
+Letteralmente "`sorgente aperto`".
+È un modello di distribuzione del software dove, diversamente dal modello comunemente applicato, il sorgente è distribuito insieme al programma.
+Spesso viene distribuito soltanto il sorgente, lasciando all'utilizzatore il compito di crearsi la versione eseguibile.
+Esistono varie licenze di distribuzione del software che si classificano come open source.
++
+Vedi Anche <<gl_gpl>>.
+
+[[gl_rsa,RSA]]
+RSA::
+Algoritmo crittografico asimmetrico a chiave pubblica basato sulla scomposizione in fattori di numeri di grandi dimensioni.
+Il nome deriva dalle iniziali dei tre inventori: Rivest, Shamir, Adleman.
++
+Maggiori informazioni:
+https://it.wikipedia.org/wiki/RSA_(crittografia)[https://it.wikipedia.org/wiki/RSA^]
+
+[[gl_smartcard,Smartcard]]
+Smartcard::
+Circuito elettronico inserito dentro una schedina in plastica delle dimensioni di una carta di credito.
+Ne esistono di vari tipi, ed in crittografia vengono utilizzati i modelli con microprocessore integrato, per l'esecuzione di funzioni di firma digitale e cifratura.
++
+Per maggiori informazioni (in inglese):
+https://en.wikipedia.org/wiki/Smart_card[^]
+
+[[gl_virus,virus]]
+virus::
+Organismo molto semplice che si riproduce soltanto tramite infezione di altri organismi, usandone i meccanismi e le risorse interne e riprogrammandone il codice genetico.
+Il termine è passato al mondo dell'informatica per il forte parallelo con il meccanismo di diffusione.
++
+Vedi Anche <<gl_malware>>.
+
+[[gl_wizard,wizard]]
+wizard::
+Dall'inglese "`stregone`".
+Programma di assistenza per la configurazione di un altro programma o di una parte del computer che ponendo domande semplici all'utente si occupa di applicare le modifiche necessarie e le impostazioni volute.

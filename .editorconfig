@@ -1,0 +1,67 @@
+################################################
+#  GnuPG: Crittografia, Privacy e Open Source  #
+#  https://tajmone.github.io/pascucci-gpg      #
+################################################
+
+root = true
+
+
+## Repository Configurations
+############################
+[.{git*,editorconfig,*.yml}]
+end_of_line = lf
+indent_style = space
+indent_size = unset
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[.gitmodules]
+indent_style = tab
+
+
+## Markdown GFM
+###############
+[*.md]
+indent_style = space
+indent_size = unset
+end_of_line = unset
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+
+## AsciiDoc
+###########
+[*.{adoc,asciidoc}]
+indent_style = space
+indent_size = unset
+end_of_line = unset
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+
+## HTML Related Files
+#####################
+[*.{html,css,scss}]
+indent_style = space
+indent_size = unset
+charset = utf-8
+trim_trailing_whitespace = unset
+insert_final_newline = unset
+[*.css]
+end_of_line = lf
+[*.{html,scss}]
+end_of_line = unset
+
+
+## Ruby
+#######
+[{*.rb,*.gemspec,*.rake,Rakefile,rakefile}]
+indent_size = 2
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
